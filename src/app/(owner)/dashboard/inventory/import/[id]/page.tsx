@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Box, Paper, Typography, CircularProgress, Alert, Button } from "@mui/material";
 import { getImportDetail } from "@/ultis/importapi";
@@ -17,31 +17,31 @@ const ImportDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const response: ImportDetailResponse = await getImportDetail(importId);
-        if (response.status) {
-          setImportDetail(response.data);
-        } else {
-          setError(response.message || "Error fetching detail");
-        }
-      } catch (err) {
-        setError("Có lỗi xảy ra khi tải dữ liệu.");
-      } finally {
-        setLoading(false);
+  const fetchDetail = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response: ImportDetailResponse = await getImportDetail(importId);
+      if (response.status) {
+        setImportDetail(response.data);
+      } else {
+        setError(response.message || "Error fetching detail");
       }
-    };
-
-    if (importId) {
-      fetchDetail();
+    } catch (err) {
+      setError("Có lỗi xảy ra khi tải dữ liệu.");
+    } finally {
+      setLoading(false);
     }
   }, [importId]);
 
+  useEffect(() => {
+    if (importId) {
+      fetchDetail();
+    }
+  }, [importId, fetchDetail]);
+
   const handleBack = () => {
-    router.back(); // Hoặc router.push("/inventory/import")
+    router.back();
   };
 
   return (
@@ -60,6 +60,7 @@ const ImportDetailPage: React.FC = () => {
             details={importDetail.details} 
             auditLogs={importDetail.auditLogs || []} 
             originalImportId={importDetail.importId}
+            onReload={fetchDetail} // Truyền hàm reload xuống
           />
         </Paper>
       ) : (

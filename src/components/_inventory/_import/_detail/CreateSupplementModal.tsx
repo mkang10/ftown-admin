@@ -1,4 +1,5 @@
-// CreateSupplementModal.tsx
+"use client";
+
 import React, { useRef } from "react";
 import {
   Dialog,
@@ -14,6 +15,7 @@ import {
 import { ImportDetailItem } from "@/type/importdetail";
 import { createSupplementInventoryImport } from "@/ultis/importapi";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface CreateSupplementModalProps {
   open: boolean;
@@ -30,9 +32,10 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
   originalImportId,
   onSuccess,
 }) => {
+  const router = useRouter();
   // Dùng ref cho từng input unitPrice
   const unitPriceRefs = useRef<{ [productVariantId: number]: HTMLInputElement | null }>({});
-
+  
   const handleCreate = async () => {
     const importDetails = missingDetails.map((item) => ({
       productVariantId: item.productVariantId,
@@ -47,13 +50,21 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
 
       if (response.status) {
         toast.success("Tạo đơn bổ sung thành công!");
+
+        // Cập nhật lại dữ liệu phía server mà không thay đổi cấu trúc UI
+        router.refresh();
+
+        // Callback để cập nhật UI tại component cha (ví dụ: cập nhật danh sách đơn bổ sung mới)
         onSuccess();
+
+        // Đóng modal
         onClose();
       } else {
         toast.error(response.message || "Tạo đơn thất bại");
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra khi tạo đơn bổ sung");
+      console.error("Error in handleCreate:", error);
     }
   };
 
