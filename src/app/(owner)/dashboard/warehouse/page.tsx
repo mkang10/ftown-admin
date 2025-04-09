@@ -1,16 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
   IconButton,
   Pagination,
-  Button,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import toast, { Toaster } from "react-hot-toast";
 import WarehouseStockTable from "@/components/WarehouseStock/WarehouseStockTable";
-// import FilterDialog, { FilterData } from "@/components/WarehouseStock/FilterForm";
 import { WarehouseStock, WarehouseStockResponse } from "@/type/WarehouseResponse";
 import { getWarehouseStocks } from "@/ultis/warehouseapi";
 
@@ -19,32 +17,30 @@ export default function WarehouseStockPage() {
   const [stocks, setStocks] = useState<WarehouseStock[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // Bộ lọc
-//   const [currentFilter, setCurrentFilter] = useState<FilterData>({});
-
-  // Phân trang: API giả sử sử dụng 1-index nên page sẽ tính từ 1
+  // Pagination (API dùng 1-index)
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  // Sắp xếp
+  // Sorting
   const [sortField, setSortField] = useState<string>("stockId");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Dialog filter và tạo mới
+  // Dialog filter (nếu cần về sau)
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
 
-  // Hàm gọi API với các tham số mới
-  const fetchData = async () => {
+  // Memoize fetchData để dùng trong useEffect và handlers
+  const fetchData = useCallback(async () => {
     try {
-      const requestParams = {
-        // ...currentFilter,
+      const params = {
         PageNumber: page,
         PageSize: pageSize,
         SortField: sortField,
         IsDescending: sortDirection === "desc",
       };
-      // Giả sử API của WarehouseStock sử dụng 2 tham số page và pageSize
-      const result: WarehouseStockResponse = await getWarehouseStocks(requestParams.PageNumber, requestParams.PageSize);
+      const result: WarehouseStockResponse = await getWarehouseStocks(
+        params.PageNumber,
+        params.PageSize
+      );
       if (result.status) {
         setStocks(result.data.data);
         setTotalCount(result.data.totalRecords);
@@ -55,35 +51,33 @@ export default function WarehouseStockPage() {
       console.error("Error fetching warehouse stocks:", error);
       toast.error("An error occurred while fetching data.");
     }
-  };
+  }, [page, pageSize, sortField, sortDirection]);
 
+  // Chỉ phụ thuộc vào fetchData đã memoized
   useEffect(() => {
     fetchData();
-  }, [ page, pageSize, sortField, sortDirection]);
+  }, [fetchData]);
 
-  // Hàm xử lý thay đổi sắp xếp (ví dụ: khi người dùng bấm vào header của bảng)
+  // Xử lý sort change
   const handleSortChange = (field: string) => {
-    let newDirection: "asc" | "desc" = "asc";
-    if (sortField === field && sortDirection === "asc") {
-      newDirection = "desc";
-    }
+    const newDir = sortField === field && sortDirection === "asc" ? "desc" : "asc";
     setSortField(field);
-    setSortDirection(newDirection);
+    setSortDirection(newDir);
     setPage(1);
   };
 
-  // Hàm xử lý gửi bộ lọc từ dialog (reset trang về 1)
-//   const handleFilterSubmit = (filters: FilterData) => {
-//     setCurrentFilter(filters);
-//     setPage(1);
-//   };
-
-  // Hàm xử lý thay đổi trang
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
+  // Xử lý page change (WarehouseStockTable dùng 0-index)
+  const handleTablePageChange = (newZeroBasedPage: number) => {
+    setPage(newZeroBasedPage + 1);
   };
 
-  // Tính số trang dựa trên tổng số bản ghi và số dòng mỗi trang
+  // Xử lý pageSize change
+  const handleTablePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setPage(1);
+  };
+
+  // Tổng số trang
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -95,33 +89,22 @@ export default function WarehouseStockPage() {
         / Warehouse / Stocks
       </Typography>
 
-      {/* Nút hiển thị filter và tạo mới */}
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <IconButton onClick={() => setFilterDialogOpen(true)}>
           <FilterListIcon />
         </IconButton>
-      
       </Box>
 
-      {/* Bảng hiển thị danh sách Warehouse Stocks */}
       <WarehouseStockTable
   stocks={stocks}
   totalRecords={totalCount}
-  page={page - 1} // Nếu WarehouseStockTable sử dụng 0-index và state page của bạn đang là 1-index, cần chuyển đổi
+  page={page - 1}
   pageSize={pageSize}
-  onPageChange={(newPage) => {
-    setPage(newPage + 1);
-    fetchData();
-  }}
-  onPageSizeChange={(newSize) => {
-    setPageSize(newSize);
-    setPage(1);
-    fetchData();
-  }}
+  onPageChange={handleTablePageChange}
+  onPageSizeChange={handleTablePageSizeChange}
 />
 
 
-      {/* Phân trang */}
       <Box
         sx={{
           position: "fixed",
@@ -134,11 +117,11 @@ export default function WarehouseStockPage() {
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination 
-            count={totalPages} 
-            page={page} 
-            onChange={handlePageChange} 
-            color="primary" 
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, v) => setPage(v)}
+            color="primary"
           />
         </Box>
       </Box>

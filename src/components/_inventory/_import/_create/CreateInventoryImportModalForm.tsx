@@ -64,8 +64,8 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
   const [variantErrors, setVariantErrors] = useState<string[]>(
     formData.importDetails.map(() => "")
   );
-  
-  // Sync display names
+
+  // 1. Sync productDisplay length to match importDetails
   useEffect(() => {
     setProductDisplay((prev) => {
       const arr = [...prev];
@@ -73,68 +73,49 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
       while (arr.length > formData.importDetails.length) arr.pop();
       return arr;
     });
+    setVariantErrors((prev) => {
+      const arr = [...prev];
+      while (arr.length < formData.importDetails.length) arr.push("");
+      while (arr.length > formData.importDetails.length) arr.pop();
+      return arr;
+    });
   }, [formData.importDetails.length]);
 
-  // When switch to equal, split quantities
+  // 2. When mode = "equal" or importDetails change, auto-split quantities equally
   useEffect(() => {
-    if (mode === "equal") {
-      onChange((prev) => ({
-        ...prev,
-        importDetails: prev.importDetails.map((d) => {
-          const per = d.storeDetails.length
-            ? Math.floor(d.quantity / d.storeDetails.length)
-            : 0;
-          return {
-            ...d,
-            storeDetails: d.storeDetails.map((s) => ({
-              ...s,
-              allocatedQuantity: per,
-            })),
-          };
-        }),
-      }));
-    }
-  }, [mode]);
+    if (mode !== "equal") return;
 
-  // Validate sum vs quantity
+    onChange((prev) => ({
+      ...prev,
+      importDetails: prev.importDetails.map((d) => {
+        const per = d.storeDetails.length
+          ? Math.floor(d.quantity / d.storeDetails.length)
+          : 0;
+        return {
+          ...d,
+          storeDetails: d.storeDetails.map((s) => ({
+            ...s,
+            allocatedQuantity: per,
+          })),
+        };
+      }),
+    }));
+  }, [mode, formData.importDetails, onChange]);
+
+  // 3. Validate sum of allocations vs. quantity on every importDetails change
   useEffect(() => {
     for (let i = 0; i < formData.importDetails.length; i++) {
       const { quantity, storeDetails } = formData.importDetails[i];
-      const total = storeDetails.reduce((s, a) => s + a.allocatedQuantity, 0);
+      const total = storeDetails.reduce((sum, s) => sum + s.allocatedQuantity, 0);
       if (total !== quantity) {
         setValidationError(`Row ${i + 1}: tổng ${total} ≠ ${quantity}`);
         return;
       }
     }
     setValidationError("");
-  }, [formData]);
+  }, [formData.importDetails]);
 
-  useEffect(() => {
-    if (mode === "equal") {
-      onChange(prev => ({
-        ...prev,
-        importDetails: prev.importDetails.map(d => {
-          // Lấy quantity mới từ prev
-          const qty = d.quantity;
-          const per = d.storeDetails.length
-            ? Math.floor(qty / d.storeDetails.length)
-            : 0;
-          return {
-            ...d,
-            storeDetails: d.storeDetails.map(s => ({
-              ...s,
-              allocatedQuantity: per,
-            })),
-          };
-        }),
-      }));
-    }
-  }, [
-    mode,
-    // Thêm phụ thuộc vào tất cả quantity
-    ...formData.importDetails.map(d => d.quantity),
-  ]);
-  
+  // Add a new empty row
   const handleAddRow = () => {
     onChange((prev) => ({
       ...prev,
@@ -150,13 +131,13 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
     }));
   };
 
+  // When user selects a variant from the dialog
   const handleVariantSelect = (variant: productVariant) => {
-    // Kiểm tra trùng
+    // Check duplicate
     const isDup = formData.importDetails.some(
-      (d, i) => i !== selectedRow && d.productVariantId === variant.variantId
+      (d, idx) => idx !== selectedRow && d.productVariantId === variant.variantId
     );
     if (isDup) {
-      // Gán lỗi cho row
       setVariantErrors((prev) => {
         const arr = [...prev];
         arr[selectedRow] = "Variant already selected";
@@ -164,28 +145,34 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
       });
       return;
     }
-    // Clear lỗi
+
+    // Clear any previous error
     setVariantErrors((prev) => {
       const arr = [...prev];
       arr[selectedRow] = "";
       return arr;
     });
-    // Cập nhật variantId
+
+    // Update variantId in formData
     onChange((prev) => ({
       ...prev,
-      importDetails: prev.importDetails.map((d, i) =>
-        i === selectedRow ? { ...d, productVariantId: variant.variantId } : d
+      importDetails: prev.importDetails.map((d, idx) =>
+        idx === selectedRow ? { ...d, productVariantId: variant.variantId } : d
       ),
     }));
-    // Cập nhật display
+
+    // Update display name
     setProductDisplay((prev) => {
       const arr = [...prev];
       arr[selectedRow] = `${variant.productName} - ${variant.sizeName} - ${variant.colorName}`;
       return arr;
     });
+
+    // Notify parent to load details if needed
     onProductVariantChange(variant.variantId, selectedRow);
     setOpenDialog(false);
   };
+
   return (
     <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, background: "#fafafa" }}>
       <Box
@@ -206,7 +193,7 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
         <RadioGroup
           row
           value={mode}
-          onChange={(e) => setMode(e.target.value as any)}
+          onChange={(e) => setMode(e.target.value as "custom" | "equal")}
           sx={{ gap: 2 }}
         >
           <FormControlLabel value="custom" control={<Radio />} label="Custom" />
@@ -225,25 +212,18 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
             warehouses={availableWarehouses}
             distributionMode={mode}
             errorMessage={variantErrors[idx]}
-
             onVariantClick={() => {
               setSelectedRow(idx);
               setOpenDialog(true);
             }}
             onUnitPriceChange={(i, v) =>
               onChange((prev) => {
-                const d = [...prev.importDetails];
-                d[i].unitPrice = v;
-                return { ...prev, importDetails: d };
+                const arr = [...prev.importDetails];
+                arr[i].unitPrice = v;
+                return { ...prev, importDetails: arr };
               })
             }
-            onQuantityChange={(i, v) =>
-              onChange((prev) => {
-                const d = [...prev.importDetails];
-                d[i].quantity = v;
-                return { ...prev, importDetails: d };
-              })
-            }
+            onQuantityChange={(i, v) => onQuantityChange(i, v)}
             onRemoveRow={(i) =>
               onChange((prev) => ({
                 ...prev,
@@ -254,16 +234,16 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
             onAllocationChange={(i, a, v) => onAllocationChange(i, a, v)}
             onAddStoreAllocation={(i) =>
               onChange((prev) => {
-                const d = [...prev.importDetails];
-                d[i].storeDetails.push({ wareHouseId: 0, allocatedQuantity: 0, handleBy: null });
-                return { ...prev, importDetails: d };
+                const arr = [...prev.importDetails];
+                arr[i].storeDetails.push({ wareHouseId: 0, allocatedQuantity: 0, handleBy: null });
+                return { ...prev, importDetails: arr };
               })
             }
             onRemoveStoreAllocation={(i, a) =>
               onChange((prev) => {
-                const d = [...prev.importDetails];
-                d[i].storeDetails = d[i].storeDetails.filter((_, j) => j !== a);
-                return { ...prev, importDetails: d };
+                const arr = [...prev.importDetails];
+                arr[i].storeDetails = arr[i].storeDetails.filter((_, j) => j !== a);
+                return { ...prev, importDetails: arr };
               })
             }
           />
@@ -295,14 +275,15 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
         </Box>
       </Box>
 
+      {/* Variant select dialog */}
       <ProductVariantDialogSelect
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         onSelect={handleVariantSelect}
         selectedVariantIds={formData.importDetails.map((d) => d.productVariantId)}
-
       />
 
+      {/* Error notification */}
       <Snackbar
         open={!!notification}
         autoHideDuration={4000}

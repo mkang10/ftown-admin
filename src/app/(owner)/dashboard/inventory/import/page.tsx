@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -13,28 +13,36 @@ import toast, { Toaster } from "react-hot-toast";
 import InventoryTable from "@/components/_inventory/_import/InventoryTable";
 import ApproveRejectDialog from "@/components/_inventory/_import/ApproveRejectDialog";
 import CreateInventoryImportModal from "@/components/_inventory/_import/_create/CreateInventoryImportModal";
-import { InventoryImportItem, ApproveRejectPayload, FilterInventoryResponse } from "@/type/InventoryImport";
-import { approveInventoryImport, filterInventoryImports, rejectInventoryImport } from "@/ultis/importapi";
+import {
+  InventoryImportItem,
+  ApproveRejectPayload,
+  FilterInventoryResponse,
+} from "@/type/InventoryImport";
+import {
+  approveInventoryImport,
+  filterInventoryImports,
+  rejectInventoryImport,
+} from "@/ultis/importapi";
 import FilterDialog, { FilterData } from "@/components/_inventory/_import/FIlterForm";
 
 export default function InventoryApprovalPage() {
   const [data, setData] = useState<InventoryImportItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
-  
+
   // Filter state
   const [currentFilter, setCurrentFilter] = useState<FilterData>({});
-  
+
   // Phân trang
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  
+
   // Sắp xếp
   const [sortField, setSortField] = useState<string>("importId");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  
+
   // Dialog filter
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
-  
+
   // Dialog approve/reject
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [actionType, setActionType] = useState<"Approved" | "Rejected" | null>(null);
@@ -44,8 +52,8 @@ export default function InventoryApprovalPage() {
   // Dialog create import
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
 
-  // Hàm gọi API với page, pageSize, sort và filter mới
-  const fetchData = async () => {
+  // Memoize fetchData để dùng cả trong useEffect và onSuccess của CreateInventoryImportModal
+  const fetchData = useCallback(async () => {
     try {
       const requestParams = {
         ...currentFilter,
@@ -56,7 +64,7 @@ export default function InventoryApprovalPage() {
       };
       const result: FilterInventoryResponse = await filterInventoryImports(requestParams);
       if (result.status) {
-        const mappedData = result.data.data.map((item: InventoryImportItem) => ({
+        const mappedData = result.data.data.map((item) => ({
           ...item,
           createdDate: new Date(item.createdDate).toLocaleString(),
         }));
@@ -69,77 +77,75 @@ export default function InventoryApprovalPage() {
       console.error("Fetch error:", error);
       toast.error("An error occurred while fetching data.");
     }
-  };
-
-  // Gọi fetchData mỗi khi page, pageSize, sortField, sortDirection hoặc currentFilter thay đổi
-  useEffect(() => {
-    fetchData();
   }, [currentFilter, page, pageSize, sortField, sortDirection]);
 
-  // Hàm xử lý thay đổi sắp xếp tại client
+  // Chỉ phụ thuộc vào fetchData đã memoized
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Sắp xếp
   const handleSortChange = (field: string) => {
-    let newDirection: "asc" | "desc" = "asc";
-    if (sortField === field && sortDirection === "asc") {
-      newDirection = "desc";
-    }
+    const newDirection = sortField === field && sortDirection === "asc" ? "desc" : "asc";
     setSortField(field);
     setSortDirection(newDirection);
     setPage(1);
   };
 
-  // Hàm xử lý filter, cập nhật filter và reset trang
+  // Filter
   const handleFilterSubmit = (filters: FilterData) => {
     setCurrentFilter(filters);
     setPage(1);
   };
 
-  // Hàm xử lý thay đổi trang
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  // Phân trang
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  // Hàm xử lý hành động approve/reject
-  const handleAction = (action: "Approved" | "Rejected", importId: number, event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
+  // Mở modal approve/reject
+  const handleAction = (
+    action: "Approved" | "Rejected",
+    importId: number,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.stopPropagation();
     setActionType(action);
     setSelectedImportId(importId);
     setComment("");
     setModalOpen(true);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-  };
+  const closeModal = () => setModalOpen(false);
 
+  // Xử lý submit approve/reject
   const handleActionSubmit = async () => {
-    if (selectedImportId === null || !actionType) return;
+    if (selectedImportId == null || !actionType) return;
+
     let changedBy = 0;
-    const accountString = localStorage.getItem("account");
-    if (accountString) {
-      try {
-        const account = JSON.parse(accountString);
-        changedBy = account.accountId;
-      } catch (error) {
-        console.error("Error parsing account:", error);
-      }
+    try {
+      const account = JSON.parse(localStorage.getItem("account") || "{}");
+      changedBy = account.accountId ?? 0;
+    } catch {
+      console.warn("Could not parse account from localStorage");
     }
+
     const payload: ApproveRejectPayload = {
       changedBy,
       comments: comment || "đã cập nhật",
     };
+
     try {
-      let result;
-      if (actionType === "Approved") {
-        result = await approveInventoryImport(selectedImportId, payload);
-      } else {
-        result = await rejectInventoryImport(selectedImportId, payload);
-      }
+      const result =
+        actionType === "Approved"
+          ? await approveInventoryImport(selectedImportId, payload)
+          : await rejectInventoryImport(selectedImportId, payload);
+
       if (result.status) {
-        // Cập nhật trạng thái trong mảng data
-        setData(prev =>
-          prev.map(item =>
+        setData((prev) =>
+          prev.map((item) =>
             item.importId === selectedImportId
-              ? { ...item, status: actionType === "Approved" ? "Approved" : "Rejected" }
+              ? { ...item, status: actionType }
               : item
           )
         );
@@ -150,8 +156,9 @@ export default function InventoryApprovalPage() {
     } catch (error) {
       console.error("Action error:", error);
       toast.error("An error occurred. Please try again.");
+    } finally {
+      setModalOpen(false);
     }
-    setModalOpen(false);
   };
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -164,8 +171,7 @@ export default function InventoryApprovalPage() {
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
         / Inventory / Approval
       </Typography>
-      
-      {/* Nút hiển thị filter dialog và nút create import */}
+
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <IconButton onClick={() => setFilterDialogOpen(true)}>
           <FilterListIcon />
@@ -174,10 +180,9 @@ export default function InventoryApprovalPage() {
           Create Import
         </Button>
       </Box>
-      
-      {/* Inventory Table */}
-      <InventoryTable 
-        data={data} 
+
+      <InventoryTable
+        data={data}
         onAction={handleAction}
         sortField={sortField}
         sortDirection={sortDirection}
@@ -196,11 +201,11 @@ export default function InventoryApprovalPage() {
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination 
-            count={totalPages} 
-            page={page} 
-            onChange={handlePageChange} 
-            color="primary" 
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
           />
         </Box>
       </Box>
@@ -221,11 +226,10 @@ export default function InventoryApprovalPage() {
         onCommentChange={setComment}
       />
 
-      {/* Modal tạo mới Inventory Import */}
       <CreateInventoryImportModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onSuccess={fetchData}  // Sau khi tạo thành công, refresh lại danh sách
+        onSuccess={fetchData}
       />
 
       <Toaster />

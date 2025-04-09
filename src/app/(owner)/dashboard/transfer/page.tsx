@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -10,7 +10,11 @@ import {
 import FilterListIcon from "@mui/icons-material/FilterList";
 import toast, { Toaster } from "react-hot-toast";
 import { filterTransfers } from "@/ultis/transferapi";
-import { TransferFilterData, TransferOrderItem, TransferResponse } from "@/type/transfer";
+import {
+  TransferFilterData,
+  TransferOrderItem,
+  TransferResponse,
+} from "@/type/transfer";
 import TransferTable from "@/components/transfer/TransferTable";
 import FilterDialog from "@/components/transfer/FilterDialog";
 import CreateTransferModal from "@/components/transfer/CreateTransferModal";
@@ -20,29 +24,24 @@ export default function TransferPage() {
   const [data, setData] = useState<TransferOrderItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // Filter state (ở đây ta giả sử chỉ có một trường filter đơn giản)
+  // Filter state
   const [currentFilter, setCurrentFilter] = useState<TransferFilterData>({});
 
-  // Phân trang (API sử dụng page tính từ 1)
+  // Pagination
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  // Nếu muốn hỗ trợ sắp xếp thêm...
-  // const [sortField, setSortField] = useState<string>("transferOrderId");
-  // const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-  // Dialog state
+  // Dialogs
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
 
-  // Hàm call API: sử dụng filterTransfers với thông số bao gồm page, pageSize, filter, ...
-  const fetchData = async () => {
+  // Memoize fetchData để dùng trong useEffect và onSuccess
+  const fetchData = useCallback(async () => {
     try {
       const requestParams = {
         page,
         pageSize,
         filter: currentFilter.filter || "",
-        // Nếu có sort: sortField, isDescending: sortDirection === "desc",
       };
 
       const result: TransferResponse = await filterTransfers(requestParams);
@@ -57,24 +56,24 @@ export default function TransferPage() {
       console.error("Error fetching transfers:", error);
       toast.error("An error occurred while fetching transfers");
     }
-  };
+  }, [page, pageSize, currentFilter]);
 
+  // Chỉ phụ thuộc vào fetchData đã memoized
   useEffect(() => {
     fetchData();
-  }, [currentFilter, page, pageSize /*, sortField, sortDirection */]);
+  }, [fetchData]);
 
-  // Hàm xử lý thay đổi filter
+  // Xử lý filter submit
   const handleFilterSubmit = (filters: TransferFilterData) => {
     setCurrentFilter(filters);
     setPage(1);
   };
 
-  // Hàm xử lý thay đổi trang
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  // Xử lý page change
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  // Tính tổng số trang
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -86,7 +85,6 @@ export default function TransferPage() {
         / Transfers / List
       </Typography>
 
-      {/* Nút mở dialog filter và tạo mới transfer */}
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <IconButton onClick={() => setFilterDialogOpen(true)}>
           <FilterListIcon />
@@ -96,10 +94,8 @@ export default function TransferPage() {
         </Button>
       </Box>
 
-      {/* Bảng hiển thị transfers */}
       <TransferTable data={data} />
 
-      {/* Phân trang */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
         <Pagination
           count={totalPages}
@@ -109,7 +105,6 @@ export default function TransferPage() {
         />
       </Box>
 
-      {/* Dialog filter */}
       <FilterDialog
         open={filterDialogOpen}
         onClose={() => setFilterDialogOpen(false)}
@@ -117,7 +112,6 @@ export default function TransferPage() {
         initialFilters={currentFilter}
       />
 
-      {/* Modal tạo mới transfer */}
       <CreateTransferModal
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}

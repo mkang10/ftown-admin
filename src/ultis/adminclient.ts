@@ -1,41 +1,30 @@
 import axios, { AxiosInstance } from 'axios';
 
-// Khởi tạo axios với URL gốc của API
+// Use an env var or hard‐code your baseURL
+const baseURL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  'https://localhost:7267/api/';
 
-//deploy
-
-// const apiclient: AxiosInstance = axios.create({
-//   baseURL: 'https://apivietnong-f9a8ecdydsdmebb3.canadacentral-01.azurewebsites.net/api',
-//   headers: {
-//     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
-//     Accept: '*/*',
-//   },
-// });
-
-//localhost
-const adminclient: AxiosInstance = axios.create({
-  baseURL: 'https://localhost:7267/api/',
+const adminClient: AxiosInstance = axios.create({
+  baseURL,
   headers: {
     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
     Accept: '*/*',
   },
 });
 
+// Only run this interceptor in the browser
+if (typeof window !== 'undefined') {
+  adminClient.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('token');
+      if (token && config.headers) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+}
 
-
-
-// Thêm interceptor để tự động thêm token vào tiêu đề
-adminclient.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token'); // Lấy token từ localStorage
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`; // Thêm token vào tiêu đề
-    }
-    return config; // Trả về cấu hình đã chỉnh sửa
-  },
-  error => {
-    return Promise.reject(error);
-  }
-);
-
-export default adminclient;
+export default adminClient;

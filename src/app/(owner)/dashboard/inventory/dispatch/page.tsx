@@ -9,30 +9,31 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import toast, { Toaster } from "react-hot-toast";
-import { Dispatch, DispatchResponse } from "@/type/dispatch"; // ✅ import đúng
+import { Dispatch, DispatchResponse } from "@/type/dispatch";
 import FilterDispatchDialog, { FilterData } from "@/components/dispatch/DispatchFilter";
 import { getDispatches } from "@/ultis/dispatch";
 import DispatchTable from "@/components/dispatch/DispatchTable";
 
 export default function DispatchApprovalPage() {
-  const [data, setData] = useState<Dispatch[]>([]); // ✅ Đúng kiểu
+  const [data, setData] = useState<Dispatch[]>([]);
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<FilterData>({});
 
-  const fetchData = async () => {
-    try {
-      const response: DispatchResponse = await getDispatches(page, pageSize, currentFilter);
-      setData(response.data);
-      setTotalRecords(response.totalRecords);
-    } catch (error) {
-      console.error("Failed to fetch dispatches:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response: DispatchResponse = await getDispatches(page, pageSize, currentFilter);
+        setData(response.data);
+        setTotalRecords(response.totalRecords);
+      } catch (error) {
+        console.error("Failed to fetch dispatches:", error);
+        toast.error("Không thể tải dữ liệu dispatch.");
+      }
+    };
+
     fetchData();
   }, [page, pageSize, currentFilter]);
 
@@ -58,14 +59,14 @@ export default function DispatchApprovalPage() {
       </Box>
 
       <DispatchTable
-  data={data}
-  onSortChange={(field: string) => {
-    // bạn có thể xử lý logic sort ở đây nếu muốn
-    console.log("Sort by", field);
-  }}
-  sortField={"dispatchId"}         // hoặc field mặc định bạn dùng
-  sortDirection={"asc"}            // hoặc "desc", tuỳ logic bạn dùng
-/>
+        data={data}
+        onSortChange={(field: string) => {
+          console.log("Sort by", field);
+        }}
+        sortField="dispatchId"
+        sortDirection="asc"
+      />
+
       <Box
         sx={{
           position: "fixed",
