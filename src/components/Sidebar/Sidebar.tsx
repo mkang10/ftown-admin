@@ -141,7 +141,7 @@ const Sidebar: React.FC = () => {
           isOpen={isOpen}
           subItems={[
             { label: "Inventory Import", route: "/dashboard/inventory/import" },
-            { label: "Inventory Export", route: "/dashboard/inventory/export" },
+            { label: "Inventory Export", route: "/dashboard/inventory/dispatch" },
           ]}
           activeDropdown={activeDropdown}
           setActiveDropdown={setActiveDropdown}
@@ -150,21 +150,17 @@ const Sidebar: React.FC = () => {
 
         <SidebarItem
           icon={<FiUserCheck />}
-          label="Staff Assignment"
-          route="/staff-assignment"
+          label="Transfer"
+          route="/dashboard/transfer"
           isOpen={isOpen}
         />
-
-        <SidebarDropdown
-          id="promotions"
+         <SidebarItem
           icon={<FiTrendingUp />}
-          label="Promotions"
+          label="warehouse"
+          route="/dashboard/warehouse"
           isOpen={isOpen}
-          subItems={[{ label: "Manage Promotions", route: "/promotions/manage" }]}
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
-          openSidebar={openSidebar}
         />
+     
 
         <SidebarDropdown
           id="reports"

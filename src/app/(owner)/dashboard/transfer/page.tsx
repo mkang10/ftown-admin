@@ -9,47 +9,44 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import toast, { Toaster } from "react-hot-toast";
-import TransferTable from "@/components/transfer/TransferTable";
-import FilterDialog, { FilterData } from "@/components/transfer/FilterDialog";
-import CreateTransferModal from "@/components/transfer/CreateTransferModal";
 import { filterTransfers } from "@/ultis/transferapi";
-import { TransferItem } from "antd/es/transfer";
-import { TransferResponse } from "@/type/transfer";
+import { TransferFilterData, TransferOrderItem, TransferResponse } from "@/type/transfer";
+import TransferTable from "@/components/transfer/TransferTable";
+import FilterDialog from "@/components/transfer/FilterDialog";
+import CreateTransferModal from "@/components/transfer/CreateTransferModal";
 
 export default function TransferPage() {
   // Data state
-  const [data, setData] = useState<TransferItem[]>([]);
+  const [data, setData] = useState<TransferOrderItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // Filter state
-  const [currentFilter, setCurrentFilter] = useState<FilterData>({});
+  // Filter state (ở đây ta giả sử chỉ có một trường filter đơn giản)
+  const [currentFilter, setCurrentFilter] = useState<TransferFilterData>({});
 
   // Phân trang (API sử dụng page tính từ 1)
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  // Sắp xếp
-  const [sortField, setSortField] = useState<string>("transferId");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  // Nếu muốn hỗ trợ sắp xếp thêm...
+  // const [sortField, setSortField] = useState<string>("transferOrderId");
+  // const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Dialog state
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
 
-  // Hàm gọi API với các tham số hiện tại
+  // Hàm call API: sử dụng filterTransfers với thông số bao gồm page, pageSize, filter, ...
   const fetchData = async () => {
     try {
       const requestParams = {
         page,
         pageSize,
         filter: currentFilter.filter || "",
-        // Nếu sau này bạn cần sort thì có thể thêm:
-        // sortField,
-        // isDescending: sortDirection === "desc",
+        // Nếu có sort: sortField, isDescending: sortDirection === "desc",
       };
-  
-      const result = await filterTransfers(requestParams);
-  
+
+      const result: TransferResponse = await filterTransfers(requestParams);
+
       if (result.status) {
         setData(result.data.data);
         setTotalCount(result.data.totalRecords);
@@ -61,14 +58,13 @@ export default function TransferPage() {
       toast.error("An error occurred while fetching transfers");
     }
   };
-  
 
   useEffect(() => {
     fetchData();
-  }, [currentFilter, page, pageSize, sortField, sortDirection]);
+  }, [currentFilter, page, pageSize /*, sortField, sortDirection */]);
 
   // Hàm xử lý thay đổi filter
-  const handleFilterSubmit = (filters: FilterData) => {
+  const handleFilterSubmit = (filters: TransferFilterData) => {
     setCurrentFilter(filters);
     setPage(1);
   };
@@ -76,17 +72,6 @@ export default function TransferPage() {
   // Hàm xử lý thay đổi trang
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
-  };
-
-  // Hàm xử lý thay đổi sắp xếp
-  const handleSortChange = (field: string) => {
-    let newDirection: "asc" | "desc" = "asc";
-    if (sortField === field && sortDirection === "asc") {
-      newDirection = "desc";
-    }
-    setSortField(field);
-    setSortDirection(newDirection);
-    setPage(1);
   };
 
   // Tính tổng số trang
@@ -101,7 +86,7 @@ export default function TransferPage() {
         / Transfers / List
       </Typography>
 
-      {/* Nút hiển thị dialog filter và tạo mới transfer */}
+      {/* Nút mở dialog filter và tạo mới transfer */}
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <IconButton onClick={() => setFilterDialogOpen(true)}>
           <FilterListIcon />
@@ -111,21 +96,16 @@ export default function TransferPage() {
         </Button>
       </Box>
 
-      {/* Bảng hiển thị danh sách transfer */}
-      <TransferTable 
-        data={data} 
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSortChange={handleSortChange}
-      />
+      {/* Bảng hiển thị transfers */}
+      <TransferTable data={data} />
 
       {/* Phân trang */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-        <Pagination 
-          count={totalPages} 
-          page={page} 
-          onChange={handlePageChange} 
-          color="primary" 
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
         />
       </Box>
 

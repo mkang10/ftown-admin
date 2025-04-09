@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,20 +8,21 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-
-export interface FilterData {
-  filter?: string;
-}
+import { TransferFilterData } from "@/type/transfer";
 
 interface FilterDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (filters: FilterData) => void;
-  initialFilters: FilterData;
+  onSubmit: (filters: TransferFilterData) => void;
+  initialFilters: TransferFilterData;
 }
 
 const FilterDialog: React.FC<FilterDialogProps> = ({ open, onClose, onSubmit, initialFilters }) => {
   const [filter, setFilter] = useState<string>(initialFilters.filter || "");
+
+  useEffect(() => {
+    setFilter(initialFilters.filter || "");
+  }, [initialFilters]);
 
   const handleSubmit = () => {
     onSubmit({ filter });
