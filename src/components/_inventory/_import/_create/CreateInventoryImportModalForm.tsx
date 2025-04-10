@@ -18,11 +18,7 @@ import VariantRow from "./VariantRow";
 import { InventoryImportCreateRequest } from "@/type/CreateInventoryImport";
 import { Warehouse } from "@/type/warehouse";
 import { productVariant } from "@/type/Product";
-
-const availableWarehouses: Warehouse[] = [
-  { warehouseId: 1, warehouseName: "Warehouse 1", shopManagerId: 101 },
-  { warehouseId: 2, warehouseName: "Warehouse 2", shopManagerId: 102 },
-];
+import { getWarehouses } from "@/ultis/importapi";
 
 export interface CreateInventoryImportModalFormProps {
   formData: InventoryImportCreateRequest;
@@ -53,6 +49,8 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
   onStoreIdChange,
   onAllocationChange,
 }) => {
+  // Khai báo state để lưu warehouses lấy từ API
+  const [availableWarehouses, setAvailableWarehouses] = useState<Warehouse[]>([]);
   const [mode, setMode] = useState<"custom" | "equal">("custom");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
@@ -64,6 +62,20 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
   const [variantErrors, setVariantErrors] = useState<string[]>(
     formData.importDetails.map(() => "")
   );
+
+  // Gọi API lấy danh sách Warehouse thông qua hàm getWarehouses
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        // Gọi hàm getWarehouses() với các tham số nếu cần
+        const result = await getWarehouses(); // mặc định page=1, pageSize=5
+        setAvailableWarehouses(result.data);
+      } catch (error) {
+        console.error("Failed to fetch warehouses:", error);
+      }
+    };
+    fetchWarehouses();
+  }, []);
 
   // 1. Sync productDisplay length to match importDetails
   useEffect(() => {
