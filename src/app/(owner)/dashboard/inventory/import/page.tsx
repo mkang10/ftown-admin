@@ -66,20 +66,19 @@ export default function InventoryApprovalPage() {
       if (result.status) {
         const mappedData = result.data.data.map((item) => ({
           ...item,
-          createdDate: new Date(item.createdDate).toLocaleString(),
+          createdDate: new Date(item.createdDate).toLocaleString("vi-VN"),
         }));
         setData(mappedData);
         setTotalCount(result.data.totalCount);
       } else {
-        toast.error(result.message || "Failed to fetch data.");
+        toast.error(result.message || "Không thể lấy dữ liệu.");
       }
     } catch (error) {
       console.error("Fetch error:", error);
-      toast.error("An error occurred while fetching data.");
+      toast.error("Có lỗi xảy ra khi tải dữ liệu.");
     }
   }, [currentFilter, page, pageSize, sortField, sortDirection]);
 
-  // Chỉ phụ thuộc vào fetchData đã memoized
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -127,12 +126,12 @@ export default function InventoryApprovalPage() {
       const account = JSON.parse(localStorage.getItem("account") || "{}");
       changedBy = account.accountId ?? 0;
     } catch {
-      console.warn("Could not parse account from localStorage");
+      console.warn("Không thể phân tích account từ localStorage");
     }
 
     const payload: ApproveRejectPayload = {
       changedBy,
-      comments: comment || "đã cập nhật",
+      comments: comment || "Đã cập nhật",
     };
 
     try {
@@ -149,13 +148,13 @@ export default function InventoryApprovalPage() {
               : item
           )
         );
-        toast.success(result.message || "Action successful");
+        toast.success(result.message || "Thao tác thành công");
       } else {
-        toast.error(result.message || "Action failed");
+        toast.error(result.message || "Thao tác thất bại");
       }
     } catch (error) {
       console.error("Action error:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
       setModalOpen(false);
     }
@@ -166,18 +165,26 @@ export default function InventoryApprovalPage() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Inventory Approval
+        Phê duyệt nhập kho
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        / Inventory / Approval
+        / Nhập kho / Phê duyệt
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <IconButton onClick={() => setFilterDialogOpen(true)}>
+        <IconButton
+          onClick={() => setFilterDialogOpen(true)}
+          title="Lọc"
+          sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: 'black', color: 'white' } }}
+        >
           <FilterListIcon />
         </IconButton>
-        <Button variant="contained" onClick={() => setCreateModalOpen(true)}>
-          Create Import
+        <Button
+          variant="contained"
+          onClick={() => setCreateModalOpen(true)}
+          sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: '#333' } }}
+        >
+          Tạo phiếu nhập
         </Button>
       </Box>
 
@@ -205,7 +212,7 @@ export default function InventoryApprovalPage() {
             count={totalPages}
             page={page}
             onChange={handlePageChange}
-            color="primary"
+            sx={{ '& .MuiPaginationItem-root': { color: 'black' } }}
           />
         </Box>
       </Box>

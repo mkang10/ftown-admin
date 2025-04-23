@@ -38,7 +38,7 @@ const WarehouseSelectDialog: React.FC<WarehouseSelectDialogProps> = ({
       <Button variant="outlined" onClick={handleOpen} fullWidth>
         {selectedWarehouse
           ? selectedWarehouse.warehouseName
-          : `Select ${label}`}
+          : `Chọn ${label}`}
       </Button>
       <WarehouseDialogSelect open={open} onClose={handleClose} onSelect={handleSelect} />
     </Box>

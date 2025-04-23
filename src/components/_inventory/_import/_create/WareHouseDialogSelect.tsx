@@ -14,11 +14,10 @@ import {
   Pagination,
   CircularProgress,
   Typography,
+  Fade,
 } from "@mui/material";
-import { getWarehouses } from "@/ultis/importapi"; // Giả sử có hàm này trả về danh sách warehouse
+import { getWarehouses } from "@/ultis/importapi";
 import { Warehouse } from "@/type/warehouse";
-
-
 
 interface WarehouseDialogSelectProps {
   open: boolean;
@@ -40,19 +39,19 @@ const WarehouseDialogSelect: React.FC<WarehouseDialogSelectProps> = ({
 
   useEffect(() => {
     if (open) {
-      const fetchWarehouses = async () => {
+      (async () => {
         setLoading(true);
         try {
           const result = await getWarehouses(page, pageSize);
           setWarehouses(result.data);
           setTotalRecords(result.totalRecords);
-        } catch (error) {
-          setError("Error loading warehouses");
+          setError("");
+        } catch {
+          setError("Không thể tải danh sách kho.");
         } finally {
           setLoading(false);
         }
-      };
-      fetchWarehouses();
+      })();
     }
   }, [open, page]);
 
@@ -69,49 +68,148 @@ const WarehouseDialogSelect: React.FC<WarehouseDialogSelectProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
+      TransitionComponent={Fade}
       fullWidth
       maxWidth="sm"
-      PaperProps={{ sx: { p: 2, height: 400 } }}
+      PaperProps={{
+        sx: {
+          p: 3,
+          height: 420,
+          bgcolor: "#fafafa",
+          borderRadius: 4,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+        },
+      }}
     >
-      <DialogTitle>Select Warehouse</DialogTitle>
-      <DialogContent dividers>
+      <DialogTitle sx={{ px: 0, pb: 1, mb: 2 }}>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{
+            color: "#333",
+            textTransform: "uppercase",
+            borderBottom: "1px solid #e0e0e0",
+            pb: 1,
+            fontSize: "1rem",
+          }}
+        >
+          Chọn kho lưu trữ
+        </Typography>
+      </DialogTitle>
+
+      <DialogContent
+        dividers
+        sx={{
+          p: 0,
+          overflow: "hidden", // <-- Ẩn scrollbar tổng
+        }}
+      >
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress size={24} />
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress size={26} />
           </Box>
         ) : error ? (
-          <Typography variant="body2" color="error">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "#d32f2f",
+              fontWeight: 500,
+              textAlign: "center",
+              py: 2,
+            }}
+          >
             {error}
           </Typography>
         ) : warehouses.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No warehouses available.
+          <Typography
+            variant="body2"
+            sx={{
+              color: "#888",
+              textAlign: "center",
+              py: 2,
+            }}
+          >
+            Không có kho nào để hiển thị.
           </Typography>
         ) : (
           <>
-            <List>
-              {warehouses.map((warehouse) => (
-                <ListItem key={warehouse.warehouseId} disableGutters>
-                  <ListItemButton onClick={() => handleSelect(warehouse)}>
+            <List
+              sx={{
+                maxHeight: 270,
+                overflowY: "auto", // Chỉ cho phép dọc
+                overflowX: "hidden", // Ẩn ngang
+                px: 0,
+              }}
+            >
+              {warehouses.map((wh) => (
+                <ListItem key={wh.warehouseId} disableGutters>
+                  <ListItemButton
+                    onClick={() => handleSelect(wh)}
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 3,
+                      mb: 1.5,
+                      px: 2,
+                      py: 1.4,
+                      transition: "all 0.2s",
+                      backgroundColor: "#fff",
+                      "&:hover": {
+                        backgroundColor: "#000",
+                        transform: "scale(1.01)",
+                        "& .MuiListItemText-primary": {
+                          color: "#fff",
+                        },
+                      },
+                    }}
+                  >
                     <ListItemAvatar>
                       <Avatar
-                        src={warehouse.mainImagePath}
-                        alt={warehouse.warehouseName}
-                        sx={{ width: 40, height: 40, mr: 1 }}
+                        src={wh.mainImagePath}
+                        alt={wh.warehouseName}
+                        sx={{
+                          width: 42,
+                          height: 42,
+                          mr: 2,
+                          border: "1px solid #ccc",
+                        }}
                       />
                     </ListItemAvatar>
-                    <ListItemText primary={warehouse.warehouseName} />
+                    <ListItemText
+                      primary={wh.warehouseName}
+                      primaryTypographyProps={{
+                        fontWeight: 500,
+                        color: "#333",
+                        fontSize: "0.95rem",
+                      }}
+                    />
                   </ListItemButton>
                 </ListItem>
               ))}
             </List>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+
+            <Box sx={{ display: "flex", justifyContent: "center"}}>
               <Pagination
+                
                 count={Math.ceil(totalRecords / pageSize)}
                 page={page}
                 onChange={handlePageChange}
                 size="small"
-                color="primary"
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    color: "#555",
+                    borderRadius: 2,
+                    border: "1px solid #ccc",
+                    "&:hover": {
+                      backgroundColor: "#000",
+                      color: "#fff",
+                    },
+                    "&.Mui-selected": {
+                      backgroundColor: "#000",
+                      color: "#fff",
+                      borderColor: "#000",
+                    },
+                  },
+                }}
               />
             </Box>
           </>

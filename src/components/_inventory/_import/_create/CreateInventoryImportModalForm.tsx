@@ -51,7 +51,7 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
 }) => {
   // Khai báo state để lưu warehouses lấy từ API
   const [availableWarehouses, setAvailableWarehouses] = useState<Warehouse[]>([]);
-  const [mode, setMode] = useState<"custom" | "equal">("custom");
+  const [mode, setMode] = useState<"custom" | "equal">("equal");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState(0);
   const [productDisplay, setProductDisplay] = useState<string[]>(
@@ -135,7 +135,7 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
         ...prev.importDetails,
         {
           productVariantId: 0,
-          unitPrice: 0,
+          costPrice: 0,
           quantity: 0,
           storeDetails: [{ wareHouseId: 0, allocatedQuantity: 0, handleBy: null }],
         },
@@ -186,7 +186,15 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
   };
 
   return (
-    <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, background: "#fafafa" }}>
+    <Paper
+    sx={{
+      p: 4,
+      borderRadius: 2,
+      backgroundColor: "#fff",
+      border: "2px solid black",
+      boxShadow: "none",
+    }}
+  >
       <Box
         component="form"
         onSubmit={(e) => {
@@ -199,25 +207,36 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
         }}
         sx={{ display: "flex", flexDirection: "column", gap: 3 }}
       >
-        <Typography variant="h6">Create Inventory Import</Typography>
+<Typography variant="h5" fontWeight="bold" color="black">
+  Tạo Phiếu Nhập Kho
+</Typography>
 
         {/* Mode selector */}
-        <RadioGroup
-          row
-          value={mode}
-          onChange={(e) => setMode(e.target.value as "custom" | "equal")}
-          sx={{ gap: 2 }}
-        >
-          <FormControlLabel value="custom" control={<Radio />} label="Custom" />
-          <FormControlLabel value="equal" control={<Radio />} label="Equal Split" />
-        </RadioGroup>
+        <RadioGroup hidden
+  row
+  value={mode}
+  onChange={(e) => setMode(e.target.value as "custom" | "equal")}
+  sx={{ gap: 3, color: "black" }}
+>
+  <FormControlLabel
+    value="custom"
+    control={<Radio sx={{ color: "black" }} />}
+    label="Phân phối thủ công"
+/>
+  <FormControlLabel
+    value="equal"
+    control={<Radio sx={{ color: "black" }} />}
+    label="Chia đều tự động"
+/>
+</RadioGroup>
+
 
         {/* Variant rows */}
         {formData.importDetails.map((detail, idx) => (
           <VariantRow
             key={idx}
             index={idx}
-            unitPrice={detail.unitPrice}
+            costPrice={detail.costPrice}
             quantity={detail.quantity}
             productDisplay={productDisplay[idx]}
             storeAllocations={detail.storeDetails}
@@ -231,7 +250,7 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
             onUnitPriceChange={(i, v) =>
               onChange((prev) => {
                 const arr = [...prev.importDetails];
-                arr[i].unitPrice = v;
+                arr[i].costPrice = v;
                 return { ...prev, importDetails: arr };
               })
             }
@@ -263,27 +282,54 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
 
         {/* Add product button */}
         <Button
-          onClick={handleAddRow}
-          variant="outlined"
-          startIcon={<AddIcon />}
-          sx={{ alignSelf: "flex-start" }}
-        >
-          Add Product
-        </Button>
+  onClick={handleAddRow}
+  variant="outlined"
+  startIcon={<AddIcon />}
+  sx={{
+    borderColor: "black",
+    color: "black",
+    fontWeight: "bold",
+    "&:hover": {
+      backgroundColor: "#000",
+      color: "#fff",
+    },
+  }}
+>
+  Thêm sản phẩm
+</Button>
+
 
         <Divider />
 
         {/* Submit */}
         <Box sx={{ textAlign: "right" }}>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading}
-            sx={{ px: 5, py: 1.5, borderRadius: 2 }}
-          >
-            {loading ? "Processing..." : "Create Import"}
-          </Button>
+        <Button
+  type="submit"
+  variant="contained"
+  color="inherit"
+  disabled={loading}
+  sx={{
+    px: 5,
+    py: 1.5,
+    borderRadius: 0,
+    fontWeight: "bold",
+    backgroundColor: "black",
+    color: "white",
+    transition: "0.3s ease",
+    "&:hover": {
+      backgroundColor: "#ffffff",
+      color: "#000000",
+      border: "2px solid black",
+    },
+    "&:disabled": {
+      backgroundColor: "#ccc",
+      color: "#666",
+    },
+  }}
+>
+  {loading ? "Đang tạo..." : "Tạo Phiếu Nhập"}
+</Button>
+
         </Box>
       </Box>
 

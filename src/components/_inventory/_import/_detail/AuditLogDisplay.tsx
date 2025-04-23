@@ -20,40 +20,40 @@ export const AuditLogDisplay: React.FC<AuditLogDisplayProps> = ({ auditLogs }) =
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Audit Logs
+        Nhật ký thay đổi
       </Typography>
       {auditLogs.map((log) => (
         <Accordion key={log.auditLogId}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography>
-              Audit Log ID: {log.auditLogId} - Operation: {log.operation}
+              Mã Nhật Ký: {log.auditLogId} - Thao Tác: {log.operation}
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={1}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body1">
-                  <strong>Table:</strong> {log.tableName}
+                  <strong>Bảng:</strong> {log.tableName}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body1">
-                  <strong>Changed By:</strong> {log.changedBy}
+                  <strong>Người Thay Đổi:</strong> {log.changedBy}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body1">
-                  <strong>Change Date:</strong> {log.changeDate}
+                  <strong>Thời Gian:</strong> {log.changeDate}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body1">
-                  <strong>Comment:</strong> {log.comment}
+                  <strong>Ghi Chú:</strong> {log.comment}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="body1">
-                  <strong>Change Data:</strong>
+                  <strong>Dữ Liệu Thay Đổi:</strong>
                 </Typography>
                 <RenderValue
                   value={

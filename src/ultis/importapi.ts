@@ -19,20 +19,6 @@ export const getPendingInventoryImports = async (): Promise<PendingInventoryResp
   }
 };
 
-export const createInventoryImport = async (
-  data: InventoryImportCreateRequest
-): Promise<InventoryImportCreateResponse> => {
-  try {
-    const response = await adminclient.post<InventoryImportCreateResponse>(
-      "/inventoryimport/create",
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error creating inventory import:", error);
-    throw error;
-  }
-};
 
 export const getProductVariants = async (
   page: number = 1,
@@ -68,14 +54,63 @@ export const approveInventoryImport = async (
   payload: ApproveRejectPayload
 ): Promise<ApproveRejectResponse> => {
   try {
-    const response = await adminclient.post<ApproveRejectResponse>(`/inventoryimport/${importId}/approve`, payload);
-    return response.data;
-  } catch (error) {
-    console.error("Error approving inventory import:", error);
-    throw error;
+    // Gọi API với responseType 'blob' để nhận file .docx
+    const resp = await adminclient.post(
+      `/inventoryimport/${importId}/approve`,
+      payload,
+      { responseType: 'blob' }
+    );
+
+    // Kiểm tra xem server có trả về JSON lỗi không
+    const contentType = resp.headers['content-type'] || '';
+    if (contentType.includes('application/json')) {
+      // nếu là JSON lỗi, parse blob rồi ném lỗi
+      const txt = await resp.data.text();
+      const err = JSON.parse(txt);
+      return Promise.reject(new Error(err.message || 'Error approving import'));
+    }
+
+    // Lấy filename từ header Content‑Disposition
+    const cd = resp.headers['content-disposition'] || '';
+    let filename = `PhieuNhap_${importId}.docx`;
+    const m = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (m?.[1]) {
+      filename = m[1].replace(/['"]/g, '');
+    }
+
+    // Tạo URL blob và trigger download
+    const blobUrl = window.URL.createObjectURL(new Blob([resp.data]));
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+
+    // Trả về như cũ
+    return {
+      status: true,
+      message: 'Inventory import approved successfully.',
+    };
+  } catch (error: any) {
+    console.error('Error approving inventory import:', error);
+    // Nếu server trả blob JSON lỗi, parse tiếp
+    if (
+      error.response?.data &&
+      error.response.headers['content-type']?.includes('application/json')
+    ) {
+      try {
+        const txt = await error.response.data.text();
+        const err = JSON.parse(txt);
+        return Promise.reject(new Error(err.message || error.message));
+      } catch {
+        // fallback
+      }
+    }
+    return Promise.reject(error);
   }
 };
-
 // Hàm reject inventory import
 export const rejectInventoryImport = async (
   importId: number,
@@ -159,15 +194,80 @@ export const createSupplementInventoryImport = async (
   data: InventoryCreateSupplementRequest
 ): Promise<InventoryCreateSupplementResponse> => {
   try {
-    const response = await adminclient.post<InventoryImportCreateResponse>(
-      "/inventoryimport/create-supplement",
-      data
-    );
-    // Nếu response.status trả về false, ném lỗi với message từ API
-    if (!response.data.status) {
-      throw new Error(response.data.message);
+    const response = await adminclient.post("/inventoryimport/create-supplement", data, {
+      responseType: "blob",
+    });
+
+    // Kiểm tra nếu API trả về lỗi theo header hoặc blob không hợp lệ
+    // (Cách xử lý này phụ thuộc vào backend – giả sử nếu không thành công, API sẽ trả về blob JSON chứa lỗi)
+    // Ở đây, ta giả định rằng nếu thành công, luôn trả file.
+
+    // Lấy tên file từ header
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = "PhieuNhapSupplement.docx";
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (fileNameMatch && fileNameMatch[1]) {
+        filename = fileNameMatch[1].replace(/['"]/g, "");
+      }
     }
-    return response.data;
+
+    // Tạo URL Blob và trigger download
+    const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.setAttribute("download", filename);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+
+    // Trả về response như cũ
+    return {
+      status: true,
+      message: "Tạo đơn nhập bổ sung thành công và file biên bản đã được tải về.",
+      data: null,
+    };
+  } catch (error) {
+    console.error("Error creating inventory supplement import:", error);
+    throw error;
+  }
+};
+
+export const createInventoryImport = async (
+  data: InventoryImportCreateRequest
+): Promise<InventoryImportCreateResponse> => {
+  try {
+    const response = await adminclient.post("/inventoryimport/create", data, {
+      responseType: "blob",
+    });
+
+    // Lấy tên file từ header (nếu có)
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = "PhieuNhap.docx";
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (fileNameMatch && fileNameMatch[1]) {
+        filename = fileNameMatch[1].replace(/['"]/g, "");
+      }
+    }
+
+    // Tạo URL Blob và trigger download
+    const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.setAttribute("download", filename);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+
+    // Trả về response như cũ (bạn có thể bổ sung thêm thông tin nếu cần)
+    return {
+      status: true,
+      message: "Tạo import thành công và file biên bản đã được tải về.",
+      data: null,
+    };
   } catch (error) {
     console.error("Error creating inventory import:", error);
     throw error;

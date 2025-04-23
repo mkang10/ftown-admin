@@ -16,7 +16,7 @@ interface ImportDetailAccordionProps {
 }
 
 export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ detail }) => {
-  // Tính tổng số item thiếu chỉ nếu status là Shortage
+  // Tính tổng số lượng thiếu nếu trạng thái là "Shortage"
   const missingTotal = detail.storeDetails.reduce((sum, store) => {
     const missing = store.allocatedQuantity - store.actualQuantity;
     const isShortage = store.status.trim().toLowerCase() === "shortage";
@@ -27,10 +27,10 @@ export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ de
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography>
-          Import Detail ID: {detail.importDetailId} - Product Variant ID: {detail.productVariantId}{" "}
+          Chi Tiết Nhập ID: {detail.importDetailId} - Biến Thể Sản Phẩm ID: {detail.productVariantId}{" "}
           {missingTotal > 0 && (
             <Typography variant="caption" color="error" sx={{ ml: 1 }}>
-              (Missing: {missingTotal})
+              (Thiếu: {missingTotal})
             </Typography>
           )}
         </Typography>
@@ -38,15 +38,18 @@ export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ de
       <AccordionDetails>
         <Box sx={{ mb: 1 }}>
           <Typography variant="body1">
-            <strong>Quantity:</strong> {detail.quantity}
+            <strong>Số Lượng:</strong> {detail.quantity}
           </Typography>
           <Typography variant="body1">
-            <strong>Product Variant Name:</strong> {detail.productVariantName || "-"}
+            <strong>Đơn Giá:</strong> {detail.costPrice} VND
+          </Typography>
+          <Typography variant="body1">
+            <strong>Tên Biến Thể:</strong> {detail.productVariantName || "-"}
           </Typography>
         </Box>
         <Box sx={{ ml: 2, mt: 1 }}>
           <Typography variant="body1">
-            <strong>Store Allocations:</strong>
+            <strong>Phân Bổ Tại Cửa Hàng:</strong>
           </Typography>
           {detail.storeDetails.map((store) => {
             const missing = store.allocatedQuantity - store.actualQuantity;
@@ -54,17 +57,17 @@ export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ de
             return (
               <Box key={store.storeId} sx={{ ml: 2, mt: 0.5 }}>
                 <Typography variant="body2">
-                  <strong>Store ID:</strong> {store.storeId} -{" "}
-                  <strong>Name:</strong> {store.storeName} -{" "}
-                  <strong>Allocated:</strong> {store.allocatedQuantity} -{" "}
-                  <strong>Actual:</strong> {store.actualQuantity} -{" "}
-                  <strong>Staff:</strong> {store.staffName} -{" "}
-                  <strong>Status:</strong> {store.status.trim()}
+                  <strong>Cửa Hàng ID:</strong> {store.storeId} -{" "}
+                  <strong>Tên:</strong> {store.storeName} -{" "}
+                  <strong>Phân Bổ:</strong> {store.allocatedQuantity} -{" "}
+                  <strong>Thực Tế:</strong> {store.actualQuantity} -{" "}
+                  <strong>Nhân Viên:</strong> {store.staffName} -{" "}
+                  <strong>Trạng Thái:</strong> {store.status.trim()}
                 </Typography>
 
                 {isShortage && missing > 0 && (
                   <Alert severity="error" sx={{ mt: 1 }}>
-                    Missing {missing} item{missing > 1 ? "s" : ""}
+                    Thiếu {missing} sản phẩm
                   </Alert>
                 )}
               </Box>

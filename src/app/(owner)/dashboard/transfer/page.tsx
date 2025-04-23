@@ -20,22 +20,22 @@ import FilterDialog from "@/components/transfer/FilterDialog";
 import CreateTransferModal from "@/components/transfer/CreateTransferModal";
 
 export default function TransferPage() {
-  // Data state
+  // Trạng thái dữ liệu
   const [data, setData] = useState<TransferOrderItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // Filter state
+  // Trạng thái bộ lọc
   const [currentFilter, setCurrentFilter] = useState<TransferFilterData>({});
 
-  // Pagination
+  // Phân trang
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  // Dialogs
+  // Trạng thái dialog
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
 
-  // Memoize fetchData để dùng trong useEffect và onSuccess
+  // Hàm lấy dữ liệu từ API
   const fetchData = useCallback(async () => {
     try {
       const requestParams = {
@@ -50,26 +50,25 @@ export default function TransferPage() {
         setData(result.data.data);
         setTotalCount(result.data.totalRecords);
       } else {
-        toast.error(result.message || "Failed to fetch transfers");
+        toast.error(result.message || "Không thể lấy danh sách phiếu chuyển");
       }
     } catch (error) {
-      console.error("Error fetching transfers:", error);
-      toast.error("An error occurred while fetching transfers");
+      console.error("Lỗi khi lấy dữ liệu phiếu chuyển:", error);
+      toast.error("Đã xảy ra lỗi khi tải danh sách phiếu chuyển");
     }
   }, [page, pageSize, currentFilter]);
 
-  // Chỉ phụ thuộc vào fetchData đã memoized
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Xử lý filter submit
+  // Xử lý khi áp dụng bộ lọc
   const handleFilterSubmit = (filters: TransferFilterData) => {
     setCurrentFilter(filters);
     setPage(1);
   };
 
-  // Xử lý page change
+  // Xử lý khi đổi trang
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
@@ -79,10 +78,10 @@ export default function TransferPage() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Transfers
+        Danh sách phiếu chuyển
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        / Transfers / List
+        / Phiếu chuyển / Danh sách
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
@@ -90,7 +89,7 @@ export default function TransferPage() {
           <FilterListIcon />
         </IconButton>
         <Button variant="contained" onClick={() => setCreateModalOpen(true)}>
-          Create Transfer
+          Tạo phiếu chuyển
         </Button>
       </Box>
 

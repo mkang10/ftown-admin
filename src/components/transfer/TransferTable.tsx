@@ -94,98 +94,95 @@ const TransferTable: React.FC<TransferTableProps> = ({
   return (
     <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
       <Table>
-        <TableHead>
-          <TableRow sx={{ backgroundColor: "grey.100" }}>
-            <TableCell align="left">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "transferOrderId"}
-                  direction={sortField === "transferOrderId" ? sortDirection : "asc"}
-                  onClick={createSortHandler("transferOrderId")}
-                >
-                  Transfer Order ID
-                </TableSortLabel>
-              ) : (
-                "Transfer Order ID"
-              )}
-            </TableCell>
-            <TableCell align="left">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "importReferenceNumber"}
-                  direction={
-                    sortField === "importReferenceNumber" ? sortDirection : "asc"
-                  }
-                  onClick={createSortHandler("importReferenceNumber")}
-                >
-                  Import Ref. No.
-                </TableSortLabel>
-              ) : (
-                "Import Ref. No."
-              )}
-            </TableCell>
-            <TableCell align="left">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "dispatchReferenceNumber"}
-                  direction={
-                    sortField === "dispatchReferenceNumber" ? sortDirection : "asc"
-                  }
-                  onClick={createSortHandler("dispatchReferenceNumber")}
-                >
-                  Dispatch Ref. No.
-                </TableSortLabel>
-              ) : (
-                "Dispatch Ref. No."
-              )}
-            </TableCell>
-            <TableCell align="left">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "createdByName"}
-                  direction={sortField === "createdByName" ? sortDirection : "asc"}
-                  onClick={createSortHandler("createdByName")}
-                >
-                  Created By
-                </TableSortLabel>
-              ) : (
-                "Created By"
-              )}
-            </TableCell>
-            <TableCell align="center">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "createdDate"}
-                  direction={sortField === "createdDate" ? sortDirection : "asc"}
-                  onClick={createSortHandler("createdDate")}
-                >
-                  Created Date
-                </TableSortLabel>
-              ) : (
-                "Created Date"
-              )}
-            </TableCell>
-            <TableCell align="center">
-              {onSortChange && sortField ? (
-                <TableSortLabel
-                  active={sortField === "status"}
-                  direction={sortField === "status" ? sortDirection : "asc"}
-                  onClick={createSortHandler("status")}
-                >
-                  Status
-                </TableSortLabel>
-              ) : (
-                "Status"
-              )}
-            </TableCell>
-            <TableCell align="left">Remarks</TableCell>
-            {onAction && (
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                Action
-              </TableCell>
-            )}
-          </TableRow>
-        </TableHead>
+       <TableHead>
+  <TableRow sx={{ backgroundColor: "grey.100" }}>
+    <TableCell align="left">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "transferOrderId"}
+          direction={sortField === "transferOrderId" ? sortDirection : "asc"}
+          onClick={createSortHandler("transferOrderId")}
+        >
+          Mã phiếu chuyển
+        </TableSortLabel>
+      ) : (
+        "Mã phiếu chuyển"
+      )}
+    </TableCell>
+    <TableCell align="left">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "importReferenceNumber"}
+          direction={sortField === "importReferenceNumber" ? sortDirection : "asc"}
+          onClick={createSortHandler("importReferenceNumber")}
+        >
+          Số tham chiếu nhập
+        </TableSortLabel>
+      ) : (
+        "Số tham chiếu nhập"
+      )}
+    </TableCell>
+    <TableCell align="left">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "dispatchReferenceNumber"}
+          direction={sortField === "dispatchReferenceNumber" ? sortDirection : "asc"}
+          onClick={createSortHandler("dispatchReferenceNumber")}
+        >
+          Số tham chiếu xuất
+        </TableSortLabel>
+      ) : (
+        "Số tham chiếu xuất"
+      )}
+    </TableCell>
+    <TableCell align="left">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "createdByName"}
+          direction={sortField === "createdByName" ? sortDirection : "asc"}
+          onClick={createSortHandler("createdByName")}
+        >
+          Người tạo
+        </TableSortLabel>
+      ) : (
+        "Người tạo"
+      )}
+    </TableCell>
+    <TableCell align="center">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "createdDate"}
+          direction={sortField === "createdDate" ? sortDirection : "asc"}
+          onClick={createSortHandler("createdDate")}
+        >
+          Ngày tạo
+        </TableSortLabel>
+      ) : (
+        "Ngày tạo"
+      )}
+    </TableCell>
+    <TableCell align="center">
+      {onSortChange && sortField ? (
+        <TableSortLabel
+          active={sortField === "status"}
+          direction={sortField === "status" ? sortDirection : "asc"}
+          onClick={createSortHandler("status")}
+        >
+          Trạng thái
+        </TableSortLabel>
+      ) : (
+        "Trạng thái"
+      )}
+    </TableCell>
+    <TableCell align="left">Ghi chú</TableCell>
+    {onAction && (
+      <TableCell align="center" sx={{ fontWeight: "bold" }}>
+        Thao tác
+      </TableCell>
+    )}
+  </TableRow>
+</TableHead>
+
         <TableBody>
           {data.map((row) => (
             <TableRow

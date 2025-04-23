@@ -29,7 +29,7 @@ const CreateInventoryImportModal: React.FC<CreateInventoryImportModalProps> = ({
     importDetails: [
       {
         productVariantId: 0,
-        unitPrice: 0,
+        costPrice: 0,
         quantity: 0,
         storeDetails: [{ wareHouseId: 0, allocatedQuantity: 0, handleBy: null }],
       },

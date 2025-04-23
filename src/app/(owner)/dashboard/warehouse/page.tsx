@@ -1,132 +1,114 @@
-"use client";
-import React, { useState, useEffect, useCallback } from "react";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';     // <-- với app directory 
+// import { useRouter } from 'next/router';       // <-- nếu bạn vẫn dùng pages directory
 import {
   Box,
-  Typography,
-  IconButton,
+  TextField,
   Pagination,
-} from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import toast, { Toaster } from "react-hot-toast";
-import WarehouseStockTable from "@/components/WarehouseStock/WarehouseStockTable";
-import { WarehouseStock, WarehouseStockResponse } from "@/type/WarehouseResponse";
-import { getWarehouseStocks } from "@/ultis/warehouseapi";
+  CircularProgress,
+  Typography,
+  Button
+} from '@mui/material';
+import WarehouseList from '@/components/_warehouse/WarehouseList';
+import CreateWarehouseModal from '@/components/_warehouse/CreateWarehouseModal';
+import StockModal from '@/components/_warehouse/StockModal';
+import { fetchWarehouses } from '@/ultis/warehouseapi';
+import { Warehouse } from '@/type/WarehouseList';
 
-export default function WarehouseStockPage() {
-  // Data state
-  const [stocks, setStocks] = useState<WarehouseStock[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
+const WarehousePage: React.FC = () => {
+  const router = useRouter();                   // <-- khởi tạo router
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [stockOpen, setStockOpen] = useState(false);
+  const [selected, setSelected] = useState<{ id: number; name: string }>({ id: 0, name: '' });
 
-  // Pagination (API dùng 1-index)
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
-
-  // Sorting
-  const [sortField, setSortField] = useState<string>("stockId");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-  // Dialog filter (nếu cần về sau)
-  const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
-
-  // Memoize fetchData để dùng trong useEffect và handlers
-  const fetchData = useCallback(async () => {
+  const load = async () => {
+    setLoading(true);
     try {
-      const params = {
-        PageNumber: page,
-        PageSize: pageSize,
-        SortField: sortField,
-        IsDescending: sortDirection === "desc",
-      };
-      const result: WarehouseStockResponse = await getWarehouseStocks(
-        params.PageNumber,
-        params.PageSize
-      );
-      if (result.status) {
-        setStocks(result.data.data);
-        setTotalCount(result.data.totalRecords);
-      } else {
-        toast.error(result.message || "Failed to fetch warehouse stocks.");
-      }
-    } catch (error) {
-      console.error("Error fetching warehouse stocks:", error);
-      toast.error("An error occurred while fetching data.");
+      const { data, totalRecords } = await fetchWarehouses(page, pageSize, search);
+      setWarehouses(data);
+      setTotalRecords(totalRecords);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-  }, [page, pageSize, sortField, sortDirection]);
+  };
 
-  // Chỉ phụ thuộc vào fetchData đã memoized
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    load();
+  }, [page, search]);
 
-  // Xử lý sort change
-  const handleSortChange = (field: string) => {
-    const newDir = sortField === field && sortDirection === "asc" ? "desc" : "asc";
-    setSortField(field);
-    setSortDirection(newDir);
-    setPage(1);
+  const handleCardClick = (wh: Warehouse) => {
+    setSelected({ id: wh.warehouseId, name: wh.warehouseName });
+    setStockOpen(true);
   };
-
-  // Xử lý page change (WarehouseStockTable dùng 0-index)
-  const handleTablePageChange = (newZeroBasedPage: number) => {
-    setPage(newZeroBasedPage + 1);
-  };
-
-  // Xử lý pageSize change
-  const handleTablePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-    setPage(1);
-  };
-
-  // Tổng số trang
-  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Warehouse Stocks
-      </Typography>
-      <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        / Warehouse / Stocks
-      </Typography>
-
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <IconButton onClick={() => setFilterDialogOpen(true)}>
-          <FilterListIcon />
-        </IconButton>
+    <Box p={4}>
+      <Box mb={2} display="flex" justifyContent="space-between">
+        <TextField
+          fullWidth
+          label="Search"
+          value={search}
+          onChange={e => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <Button
+          onClick={() => setCreateOpen(true)}
+          variant="contained"
+          sx={{ ml: 2 }}
+        >
+          Add Warehouse
+        </Button>
       </Box>
 
-      <WarehouseStockTable
-  stocks={stocks}
-  totalRecords={totalCount}
-  page={page - 1}
-  pageSize={pageSize}
-  onPageChange={handleTablePageChange}
-  onPageSizeChange={handleTablePageSizeChange}
-/>
+      {loading ? (
+        <CircularProgress />
+      ) : warehouses.length === 0 ? (
+        <Typography>No warehouses found.</Typography>
+      ) : (
+        <WarehouseList
+          warehouses={warehouses}
+          onCardClick={handleCardClick}
+        />
+      )}
 
+      <Box display="flex" justifyContent="center" mt={4}>
+        <Pagination
+          count={Math.ceil(totalRecords / pageSize)}
+          page={page}
+          onChange={(_, v) => setPage(v)}
+        />
+      </Box>
 
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          py: 2,
-          boxShadow: 3,
-          zIndex: 1300,
+      <CreateWarehouseModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSuccess={load}
+      />
+
+      <StockModal
+        open={stockOpen}
+        onClose={() => setStockOpen(false)}
+        warehouseId={selected.id}
+        warehouseName={selected.name}
+        onRowClick={(stockId) => {
+          // Điều hướng đến trang detail của stockId
+          router.push(`/dashboard/warehouse-stock/${stockId}`);
         }}
-      >
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, v) => setPage(v)}
-            color="primary"
-          />
-        </Box>
-      </Box>
-
-      <Toaster />
+      />
     </Box>
   );
-}
+};
+
+export default WarehousePage;

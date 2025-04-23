@@ -62,7 +62,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "ReferenceNumber" ? sortDirection : "asc"}
                 onClick={createSortHandler("ReferenceNumber")}
               >
-                Reference Number
+                Số tham chiếu
               </TableSortLabel>
             </TableCell>
             <TableCell className="hidden" align="left">
@@ -71,7 +71,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "CreatedByName" ? sortDirection : "asc"}
                 onClick={createSortHandler("CreatedByName")}
               >
-                Importer
+                Người nhập
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
@@ -80,7 +80,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "TotalCost" ? sortDirection : "asc"}
                 onClick={createSortHandler("TotalCost")}
               >
-                Total Cost
+                Tổng chi phí 
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
@@ -89,7 +89,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "Status" ? sortDirection : "asc"}
                 onClick={createSortHandler("Status")}
               >
-                Status
+                Trạng thái
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
@@ -98,11 +98,11 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "CreatedDate" ? sortDirection : "asc"}
                 onClick={createSortHandler("CreatedDate")}
               >
-                Date Imported
+                Ngày nhập
               </TableSortLabel>
             </TableCell>
             <TableCell align="center" sx={{ fontWeight: "bold" }}>
-              Action
+              Hành động
             </TableCell>
           </TableRow>
         </TableHead>
@@ -120,20 +120,20 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
               <TableCell align="center">
                 {row.status === "Pending" && (
                   <Chip
-                    label="PENDING"
+                    label="Pending"
                     size="small"
                     sx={{ bgcolor: "grey.100", color: "grey.700" }}
                   />
                 )}
-                {row.status === "Approved" && <Chip label="APPROVED" size="small" color="success" />}
-                {row.status === "Rejected" && <Chip label="REJECTED" size="small" color="error" />}
-                {row.status === "Processing" && <Chip label="PROCESSING" size="small" color="warning" />}
-                {row.status === "Done" && <Chip label="DONE" size="small" color="info" />}
+                {row.status === "Approved" && <Chip label="Approved" size="small" color="success" />}
+                {row.status === "Rejected" && <Chip label="Rejected" size="small" color="error" />}
+                {row.status === "Processing" && <Chip label="Processing" size="small" color="warning" />}
+                {row.status === "Done" && <Chip label="Done" size="small" color="info" />}
                 {row.status === "Partial Success" && (
-                  <Chip label="PARTIAL SUCCESS" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
+                  <Chip label="Partial Success" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
-                  {row.status === "Supplement Created" && (
-                  <Chip label="SUPPLEMENT CREATED" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
+                {row.status === "Supplement Created" && (
+                  <Chip label="Supplement Created" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
               </TableCell>
 
@@ -152,7 +152,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                         onAction("Approved", row.importId, e);
                       }}
                     >
-                      Approve
+                      Duyệt
                     </Button>
                     <Button
                       variant="contained"
@@ -163,12 +163,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                         onAction("Rejected", row.importId, e);
                       }}
                     >
-                      Reject
+                      Từ chối
                     </Button>
                   </Box>
                 ) : (
                   <Typography variant="body2" color="text.secondary">
-                    No Action
+                    Không có hành động
                   </Typography>
                 )}
               </TableCell>

@@ -1,5 +1,7 @@
 import { DispatchResponse } from "@/type/dispatch";
 import shopmanagerclient from "./ShopmanagerClient";
+import { DispatchResponseDto } from "@/type/dispatchdetail";
+import adminClient from "./adminclient";
 
 
 
@@ -27,5 +29,15 @@ export const getDispatches = async (
     message: string;
   }>(`/dispatch/get-all?${queryParams.toString()}`);
 
+  return response.data.data;
+};
+
+
+export const getDispatchById = async (
+  id: number
+): Promise<DispatchResponseDto> => {
+  const response = await adminClient.get<{ data: DispatchResponseDto }>(
+    `/dispatch/dispatch/${id}`
+  );
   return response.data.data;
 };

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -16,19 +17,20 @@ import {
 } from "@mui/material";
 import { productVariant } from "@/type/Product";
 import { getProductVariants } from "@/ultis/importapi";
+import toast from "react-hot-toast";
 
 interface ProductVariantDialogSelectProps {
   open: boolean;
   onClose: () => void;
   onSelect: (variant: productVariant) => void;
-  selectedVariantIds: number[];   // thêm prop
-
+  selectedVariantIds: number[];
 }
 
 const ProductVariantDialogSelect: React.FC<ProductVariantDialogSelectProps> = ({
   open,
   onClose,
   onSelect,
+  selectedVariantIds,
 }) => {
   const [variants, setVariants] = useState<productVariant[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,21 +40,20 @@ const ProductVariantDialogSelect: React.FC<ProductVariantDialogSelectProps> = ({
   const pageSize = 5;
 
   useEffect(() => {
-    if (open) {
-      const fetchVariants = async () => {
-        setLoading(true);
-        try {
-          const result = await getProductVariants(page, pageSize);
-          setVariants(result.data);
-          setTotalRecords(result.totalRecords);
-        } catch (error) {
-          setError("Error loading product variants");
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchVariants();
-    }
+    if (!open) return;
+    (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const result = await getProductVariants(page, pageSize);
+        setVariants(result.data);
+        setTotalRecords(result.totalRecords);
+      } catch {
+        setError("Không tải được danh sách biến thể");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [open, page]);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, newPage: number) => {
@@ -60,66 +61,131 @@ const ProductVariantDialogSelect: React.FC<ProductVariantDialogSelectProps> = ({
   };
 
   const handleSelect = (variant: productVariant) => {
+    // Kiểm tra nếu variant đã được chọn ở dòng khác
+    if (selectedVariantIds.includes(variant.variantId)) {
+      toast.error("Sản phẩm này đã được chọn ở dòng khác.");
+      return;
+    }
+  
     onSelect(variant);
     onClose();
   };
+  
 
   return (
     <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-      PaperProps={{ sx: { p: 2, height: 400 } }}
-    >
-      <DialogTitle>Select Product Variant</DialogTitle>
-      <DialogContent dividers>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress size={24} />
-          </Box>
-        ) : error ? (
-          <Typography variant="body2" color="error">
-            {error}
-          </Typography>
-        ) : variants.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No variants available.
-          </Typography>
-        ) : (
-          <>
-            <List>
-              {variants.map((variant) => (
-                <ListItem key={variant.variantId} disableGutters>
-                  <ListItemButton onClick={() => handleSelect(variant)}>
+    open={open}
+    onClose={onClose}
+    fullWidth
+    maxWidth="sm"
+    PaperProps={{
+      sx: {
+        p: 3,
+        height: 480,
+        backgroundColor: "#ffffff",
+        border: "1px solid #e0e0e0",
+        borderRadius: "12px",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+      },
+    }}
+  >
+    <DialogTitle sx={{ p: 0, mb: 2 }}>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          color: "#222",
+          borderBottom: "1px solid #e0e0e0",
+          pb: 1,
+          textTransform: "none",
+        }}
+      >
+        Chọn biến thể sản phẩm
+      </Typography>
+    </DialogTitle>
+
+    <DialogContent dividers sx={{ p: 0 }}>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+          <CircularProgress size={28} />
+        </Box>
+      ) : error ? (
+        <Typography sx={{ color: "error.main", textAlign: "center", py: 2 }}>
+          {error}
+        </Typography>
+      ) : variants.length === 0 ? (
+        <Typography sx={{ color: "text.secondary", textAlign: "center", py: 2 }}>
+          Chưa có biến thể nào
+        </Typography>
+      ) : (
+        <>
+          <List sx={{ maxHeight: 320, overflowY: "auto", p: 0, mb: 2 }}>
+            {variants.map((variant) => {
+              const disabled = selectedVariantIds.includes(variant.variantId);
+              return (
+                <ListItem key={variant.variantId} disableGutters sx={{ mb: 1 }}>
+                  <ListItemButton
+                    onClick={() => onSelect(variant)}
+                    disabled={disabled}
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 2,
+                      px: 2,
+                      py: 1,
+                      backgroundColor: "#fafafa",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "#000",
+                        "& .MuiListItemText-primary, & .MuiListItemText-secondary": {
+                          color: "#fff",
+                        },
+                      },
+                      ...(disabled && {
+                        opacity: 0.5,
+                        cursor: "not-allowed",
+                      }),
+                    }}
+                  >
                     <ListItemAvatar>
                       <Avatar
                         src={variant.mainImagePath}
                         alt={variant.productName}
-                        sx={{ width: 40, height: 40, mr: 1 }}
+                        sx={{ border: "1px solid #e0e0e0" }}
                       />
                     </ListItemAvatar>
                     <ListItemText
                       primary={variant.productName}
-                      secondary={`${variant.sizeName} - ${variant.colorName}`}
+                      secondary={`${variant.sizeName} – ${variant.colorName}`}
+                      primaryTypographyProps={{ fontWeight: 600, color: "#222" }}
+                      secondaryTypographyProps={{ color: "#555" }}
                     />
                   </ListItemButton>
                 </ListItem>
-              ))}
-            </List>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              <Pagination
-                count={Math.ceil(totalRecords / pageSize)}
-                page={page}
-                onChange={handlePageChange}
-                size="small"
-                color="primary"
-              />
-            </Box>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+              );
+            })}
+          </List>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Pagination
+              count={Math.ceil(totalRecords / pageSize)}
+              page={page}
+              onChange={handlePageChange}
+              size="small"
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  color: "#222",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  transition: "all 0.2s ease",
+                  "&:hover": { backgroundColor: "#333", color: "#fff" },
+                  "&.Mui-selected": { backgroundColor: "#000", color: "#fff" },
+                },
+              }}
+            />
+          </Box>
+        </>
+      )}
+    </DialogContent>
+  </Dialog>
   );
 };
 

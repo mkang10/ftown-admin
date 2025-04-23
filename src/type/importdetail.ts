@@ -17,6 +17,7 @@ export interface StoreDetail {
     quantity: number;
     productVariantName: string | null;
     storeDetails: StoreDetail[];
+    costPrice: number;
   }
   
 

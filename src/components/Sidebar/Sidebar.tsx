@@ -37,15 +37,17 @@ const Sidebar: React.FC = () => {
     <Box
       sx={{
         width: isOpen ? 240 : 80,
-        bgcolor: "background.paper",
-        height: "100vh",
+        bgcolor: "#ffffff",
         p: 2,
         borderRadius: 2,
-        boxShadow: 3,
+        boxShadow: "0px 0px 10px rgba(0,0,0,0.15)",
         transition: "width 0.3s",
-        // Cho phép hiển thị phần toggle nằm ngoài
         overflow: "visible",
         position: "relative",
+        border: "1px solid #e0e0e0",
+        display: "flex", // ✅ thêm
+        flexDirection: "column", // ✅ thêm
+        height: "100%", // ✅ đảm bảo fill theo cha
       }}
     >
       {/* Logo container with toggle button */}
@@ -99,35 +101,29 @@ const Sidebar: React.FC = () => {
       <List>
         <SidebarItem
           icon={<FiHome />}
-          label="Dashboard"
+          label="Trang chủ"
           route="/dashboard"
           isOpen={isOpen}
         />
 
-        <SidebarDropdown
-          id="products"
+        <SidebarItem
+          route="/dashboard/product"
           icon={<FiBox />}
-          label="Products"
+          label="Sản phẩm"
           isOpen={isOpen}
-          subItems={[
-            { label: "Add Product", route: "/products/add" },
-            { label: "Edit/Delete Products", route: "/products/edit" },
-            { label: "View Inventory", route: "/products/inventory" },
-          ]}
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
-          openSidebar={openSidebar}
+      
+          
         />
 
         <SidebarDropdown
           id="orders"
           icon={<FiShoppingCart />}
-          label="Orders"
+          label="Đơn hàng"
           isOpen={isOpen}
           subItems={[
-            { label: "Order Confirmation", route: "/orders/confirmation" },
-            { label: "Delivery", route: "/orders/delivery" },
-            { label: "Complaint Handling", route: "/orders/complaints" },
+            { label: "Xác nhận đơn", route: "/orders/confirmation" },
+            { label: "Vận chuyển", route: "/orders/delivery" },
+            { label: "Xử lý khiếu nại", route: "/orders/complaints" },
           ]}
           activeDropdown={activeDropdown}
           setActiveDropdown={setActiveDropdown}
@@ -137,11 +133,11 @@ const Sidebar: React.FC = () => {
         <SidebarDropdown
           id="inventory"
           icon={<FiClipboard />}
-          label="Inventory Requests"
+          label="Phiếu kho"
           isOpen={isOpen}
           subItems={[
-            { label: "Inventory Import", route: "/dashboard/inventory/import" },
-            { label: "Inventory Export", route: "/dashboard/inventory/dispatch" },
+            { label: "Nhập kho", route: "/dashboard/inventory/import" },
+            { label: "Xuất kho", route: "/dashboard/inventory/dispatch" },
           ]}
           activeDropdown={activeDropdown}
           setActiveDropdown={setActiveDropdown}
@@ -150,26 +146,25 @@ const Sidebar: React.FC = () => {
 
         <SidebarItem
           icon={<FiUserCheck />}
-          label="Transfer"
+          label="Điều chuyển"
           route="/dashboard/transfer"
           isOpen={isOpen}
         />
-         <SidebarItem
+        <SidebarItem
           icon={<FiTrendingUp />}
-          label="warehouse"
+          label="Kho tổng"
           route="/dashboard/warehouse"
           isOpen={isOpen}
         />
-     
 
         <SidebarDropdown
           id="reports"
           icon={<FiSettings />}
-          label="Reports"
+          label="Báo cáo"
           isOpen={isOpen}
           subItems={[
-            { label: "Sales Performance", route: "/reports/sales" },
-            { label: "Management Reports", route: "/reports/management" },
+            { label: "Hiệu suất bán hàng", route: "/reports/sales" },
+            { label: "Báo cáo quản lý", route: "/reports/management" },
           ]}
           activeDropdown={activeDropdown}
           setActiveDropdown={setActiveDropdown}
@@ -177,12 +172,19 @@ const Sidebar: React.FC = () => {
         />
       </List>
 
+
       <Divider sx={{ my: 2 }} />
 
       {/* Logout */}
       <Box
         onClick={handleLogout}
-        sx={{ display: "flex", alignItems: "center", cursor: "pointer", p: 1 }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          cursor: "pointer",
+          p: 1,
+          mt: "auto", // ✅ đẩy logout xuống cuối
+        }}
       >
         <Box sx={{ mr: isOpen ? 1 : 0 }}>
           <FiLogOut />

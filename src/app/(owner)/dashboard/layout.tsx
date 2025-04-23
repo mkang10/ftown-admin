@@ -1,8 +1,12 @@
-// app/owner/layout.tsx
 "use client";
 
 import React from "react";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+  Box,
+} from "@mui/material";
 import Navbar from "@/components/Navbar/Navbar";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import type { Shadows } from "@mui/material/styles";
@@ -39,20 +43,26 @@ export default function OwnerLayout({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div style={{ display: "flex", minHeight: "100vh" }}>
-        <Sidebar />
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            zIndex: 100,
-          }}
-        >
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+          alignItems: "stretch", // ✅ Đây là mấu chốt
+        }}
+      >
+        {/* Sidebar giữ nguyên chiều cao bằng content */}
+        <Box sx={{ flexShrink: 0 }}>
+          <Sidebar />
+        </Box>
+
+        {/* Main content */}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Navbar />
-          <main style={{ flex: 1, padding: "16px" }}>{children}</main>
-        </div>
-      </div>
+          <Box component="main" sx={{ flex: 1, p: 2 }}>
+            {children}
+          </Box>
+        </Box>
+      </Box>
     </ThemeProvider>
   );
 }

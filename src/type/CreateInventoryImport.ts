@@ -6,44 +6,44 @@ export interface InventoryImportCreateRequest {
     originalImportId: number | null;
     importDetails: {
       productVariantId: number;
-      unitPrice: number;
+      costPrice: number;
       quantity: number;
       storeDetails: { wareHouseId: number; allocatedQuantity: number; handleBy: null }[];
     }[];
   }
   
-    export interface InventoryImportCreateResponse {
-      data: {
+  export interface InventoryImportCreateResponse {
+    data?: {
+      importId: number;
+      createdByName: string | null;
+      createdBy: number;
+      createdDate: string;
+      status: string;
+      referenceNumber: string;
+      totalCost: number;
+      approvedDate: string | null;
+      completedDate: string | null;
+      originalImportId: number | null;
+      handleByName: string | null;
+      importDetails: {
+        importDetailId: number;
         importId: number;
-        createdByName: string | null;
-        createdBy: number;
-        createdDate: string;
-        status: string;
-        referenceNumber: string;
-        totalCost: number;
-        approvedDate: string | null;
-        completedDate: string | null;
-        originalImportId: number | null;
-        handleByName: string | null;
-        importDetails: {
+        productVariantId: number;
+        quantity: number;
+        importStoreDetails: {
           importDetailId: number;
-          importId: number;
-          productVariantId: number;
-          quantity: number;
-          importStoreDetails: {
-            importDetailId: number;
-            wareHouseId: number;
-            allocatedQuantity: number;
-            status: string;
-            comments: string | null;
-            staffDetailId: number | null;
-            storeImportStoreId: number;
-            handleBy: number | null;
-
-          }[];
+          wareHouseId: number;
+          allocatedQuantity: number;
+          status: string;
+          comments: string | null;
+          staffDetailId: number | null;
+          storeImportStoreId: number;
+          handleBy: number | null;
         }[];
-      };
-      status: boolean;
-      message: string;
-    }
+      }[];
+    } | null;
+    status: boolean;
+    message: string;
+  }
+  
     

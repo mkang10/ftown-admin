@@ -36,9 +36,12 @@ export interface InventoryImportItem {
   approvedDate: string | null;
   completedDate: string | null;
 }
+export interface ApproveRejectResponse {
+  status: boolean;
+  message: string;
+}
 
 export type PendingInventoryResponse = ApiResponse<InventoryImportItem[]>;
-export type ApproveRejectResponse = ApiResponse<[ApproveRejectPayload]>;
 export type FilterInventoryResponse = ApiResponse<PageResult<InventoryImportItem>>;
 
 

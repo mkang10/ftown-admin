@@ -1,9 +1,21 @@
 import axios, { AxiosInstance } from 'axios';
 
 // Use an env var or hard‐code your baseURL
+// const baseURL =
+//   process.env.NEXT_PUBLIC_API_URL ??
+//   'https://ftadminsevicewebapi.azurewebsites.net/api/';
+
+// const adminClient: AxiosInstance = axios.create({
+//   baseURL,
+//   headers: {
+//     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
+//     Accept: '*/*',
+//   },
+// });
+
 const baseURL =
   process.env.NEXT_PUBLIC_API_URL ??
-  'https://ftadminsevicewebapi.azurewebsites.net/api/';
+  'https://localhost:7267/api/';
 
 const adminClient: AxiosInstance = axios.create({
   baseURL,
@@ -12,6 +24,7 @@ const adminClient: AxiosInstance = axios.create({
     Accept: '*/*',
   },
 });
+
 
 // Only run this interceptor in the browser
 if (typeof window !== 'undefined') {

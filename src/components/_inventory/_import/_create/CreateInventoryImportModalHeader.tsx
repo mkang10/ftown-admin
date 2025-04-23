@@ -5,8 +5,7 @@ import { DialogTitle, Typography } from "@mui/material";
 const CreateInventoryImportModalHeader: React.FC = () => {
   return (
     <DialogTitle>
-      <Typography variant="h4" fontWeight="bold" color="text.primary">
-        Create Inventory Import
+      <Typography variant="h4" fontWeight="bold" color="text.black">
       </Typography>
     </DialogTitle>
   );

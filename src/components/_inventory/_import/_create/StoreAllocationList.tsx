@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import StoreAllocationRow, { StoreAllocation } from "./StoreAllocationRow";
 
@@ -25,7 +25,32 @@ const StoreAllocationList: React.FC<StoreAllocationListProps> = ({
   onAddStoreAllocation,
   onOpenWarehouse,
 }) => (
-  <Box sx={{ mt: 2 }}>
+  <Box
+    sx={{
+      mt: 3,
+      p: 3,
+      backgroundColor: "#fff",
+      border: "0px solid #000",
+      borderRadius: 3,
+      boxShadow: 4,
+      "&:hover": { boxShadow: 6 },
+    }}
+  >
+    <Typography
+      variant="subtitle1"
+      sx={{
+        fontWeight: 700,
+        textTransform: "uppercase",
+        letterSpacing: "1px",
+        mb: 2,
+        borderBottom: "2px solid #000",
+        pb: 1,
+        color: "#000",
+      }}
+    >
+      Phân bổ kho
+    </Typography>
+
     {allocations.map((alloc, idx) => (
       <StoreAllocationRow
         key={idx}
@@ -40,15 +65,29 @@ const StoreAllocationList: React.FC<StoreAllocationListProps> = ({
         onOpenWarehouse={() => onOpenWarehouse(idx)}
       />
     ))}
-    <Button
-      startIcon={<AddIcon />}
-      onClick={onAddStoreAllocation}
-      sx={{ mt: 1 }}
-      size="small"
-      variant="outlined"
-    >
-      Add Store
-    </Button>
+
+    <Box hidden sx={{ textAlign: "center", mt: 2 }}>
+      <Button
+        startIcon={<AddIcon />}
+        onClick={onAddStoreAllocation}
+        size="small"
+        variant="outlined"
+        sx={{
+          border: "2px solid #000",
+          color: "#000",
+          backgroundColor: "#fff",
+          borderRadius: 2,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          "&:hover": {
+            backgroundColor: "#000",
+            color: "#fff",
+          },
+        }}
+      >
+        Thêm phân bổ
+      </Button>
+    </Box>
   </Box>
 );
 

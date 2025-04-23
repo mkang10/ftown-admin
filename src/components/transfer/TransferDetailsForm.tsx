@@ -8,7 +8,7 @@ import { productVariant } from "@/type/Product";
 export interface TransferDetail {
   variantId: number;
   quantity: number;
-  unitPrice: number;
+  costPrice: number;
 }
 
 interface TransferDetailsFormProps {
@@ -16,7 +16,9 @@ interface TransferDetailsFormProps {
   detail: TransferDetail;
   onChange: (updated: TransferDetail) => void;
   onRemove: () => void;
+  selectedVariantIds: number[]; // ✅ Thêm prop này
 }
+
 
 const TransferDetailsForm: React.FC<TransferDetailsFormProps> = ({
   index,
@@ -30,7 +32,19 @@ const TransferDetailsForm: React.FC<TransferDetailsFormProps> = ({
   const handleFieldChange = (field: keyof TransferDetail) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    onChange({ ...detail, [field]: Number(event.target.value) });
+    const value = event.target.value;
+    // Nếu input rỗng, bạn có thể đặt giá trị về 0 hoặc không làm gì.
+    if (value === "") {
+      onChange({ ...detail, [field]: 0 });
+      return;
+    }
+
+    const numericValue = Number(value);
+    // Kiểm tra số âm và số có dấu
+    if (numericValue < 0 || !Number.isInteger(numericValue)) {
+      return;
+    }
+    onChange({ ...detail, [field]: numericValue });
   };
 
   const handleVariantSelect = (variant: productVariant) => {
@@ -72,14 +86,7 @@ const TransferDetailsForm: React.FC<TransferDetailsFormProps> = ({
         onChange={handleFieldChange("quantity")}
         fullWidth
         margin="normal"
-      />
-      <TextField
-        label="Unit Price"
-        type="number"
-        value={detail.unitPrice}
-        onChange={handleFieldChange("unitPrice")}
-        fullWidth
-        margin="normal"
+        inputProps={{ min: 0, step: 1 }}
       />
 
       <ProductVariantDialogSelect

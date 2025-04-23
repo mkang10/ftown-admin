@@ -2,7 +2,7 @@ export interface InventoryCreateSupplementRequest {
     originalImportId: number;
     importDetails: {
       productVariantId: number;
-      unitPrice: number;
+      costPrice: number;
     }[];
   }
   

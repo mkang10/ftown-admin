@@ -39,7 +39,7 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
   const handleCreate = async () => {
     const importDetails = missingDetails.map((item) => ({
       productVariantId: item.productVariantId,
-      unitPrice: Number(unitPriceRefs.current[item.productVariantId]?.value || 0),
+      costPrice: Number(unitPriceRefs.current[item.productVariantId]?.value || 0),
     }));
 
     try {
@@ -78,11 +78,11 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
               <Typography variant="subtitle1" sx={{ mb: 1 }}>
                 {item.productVariantName}
               </Typography>
-              <Grid container spacing={2}>
+              {/* <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Unit Price"
-                    type="number"
+                    type="hidden"
                     inputRef={(ref) => {
                       unitPriceRefs.current[item.productVariantId] = ref;
                     }}
@@ -90,7 +90,7 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
                     placeholder="Nhập đơn giá"
                   />
                 </Grid>
-              </Grid>
+              </Grid> */}
             </Box>
           ))}
         </Box>

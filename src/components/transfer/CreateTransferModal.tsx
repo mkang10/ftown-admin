@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -27,95 +27,137 @@ const CreateTransferModal: React.FC<CreateTransferModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [createdBy] = useState<number>(18);
+  const [createdBy, setCreatedBy] = useState<number | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("account");
+      if (raw) {
+        const acc = JSON.parse(raw);
+        setCreatedBy(acc.accountId);
+      } else {
+        console.warn("Không tìm thấy tài khoản trong localStorage");
+      }
+    } catch (e) {
+      console.error("Lỗi khi lấy tài khoản từ localStorage", e);
+    }
+  }, []);
+
   const [sourceWarehouse, setSourceWarehouse] = useState<Warehouse | null>(null);
   const [destinationWarehouse, setDestinationWarehouse] = useState<Warehouse | null>(null);
   const [transferDetails, setTransferDetails] = useState<TransferDetail[]>([
-    { variantId: 0, quantity: 0, unitPrice: 0 },
+    { variantId: 0, quantity: 0, costPrice: 0 },
   ]);
 
-  const handleDetailChange = (index: number, updated: TransferDetail) => {
-    const newDetails = [...transferDetails];
-    newDetails[index] = updated;
-    setTransferDetails(newDetails);
-  };
-
-  const handleRemoveDetail = (index: number) => {
-    const newDetails = transferDetails.filter((_, i) => i !== index);
-    setTransferDetails(newDetails);
-  };
-
-  const handleAddDetail = () => {
-    setTransferDetails([
-      ...transferDetails,
-      { variantId: 0, quantity: 0, unitPrice: 0 },
-    ]);
-  };
-
   const handleSubmit = async () => {
-    if (!sourceWarehouse || !destinationWarehouse) {
-      toast.error("Please select both Source and Destination Warehouses.");
+    if (!createdBy) {
+      toast.error("Người dùng chưa xác thực.");
       return;
     }
-
+  
+    if (!sourceWarehouse || !destinationWarehouse) {
+      toast.error("Vui lòng chọn cả kho nguồn và kho đích.");
+      return;
+    }
+  
+    if (sourceWarehouse.warehouseId === destinationWarehouse.warehouseId) {
+      toast.error("Kho nguồn và kho đích không được trùng nhau.");
+      return;
+    }
+  
+    // Kiểm tra số lượng > 0
+    const invalidDetail = transferDetails.find(
+      (detail) => !detail.variantId || detail.quantity <= 0
+    );
+    if (invalidDetail) {
+      toast.error("Số lượng sản phẩm phải lớn hơn 0.");
+      return;
+    }
+  
     const payload: TransferCreateRequest = {
       createdBy,
       sourceWarehouseId: sourceWarehouse.warehouseId,
       destinationWarehouseId: destinationWarehouse.warehouseId,
       transferDetails,
     };
-
+  
     try {
       const result = await createTransfer(payload);
-      toast.success(result.message);
+      toast.success("Tạo phiếu chuyển thành công. Tệp sẽ được tải xuống ngay.");
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error creating transfer:", error);
-      toast.error("An error occurred while creating transfer");
+    } catch (err: any) {
+      console.error("Lỗi khi tạo phiếu chuyển:", err);
+      const data = err.response?.data;
+      const errorMessage =
+        typeof data === "string"
+          ? data
+          : data?.message || data?.title || err.message || "Đã xảy ra lỗi khi tạo phiếu chuyển";
+      toast.error(errorMessage);
     }
   };
+  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create Transfer</DialogTitle>
+      <DialogTitle>Tạo phiếu chuyển</DialogTitle>
       <DialogContent>
+        {/* Kho nguồn */}
         <Box sx={{ my: 2 }}>
           <WarehouseSelectDialog
-            label="Source Warehouse"
+            label="Kho nguồn"
             selectedWarehouse={sourceWarehouse || undefined}
             onSelect={setSourceWarehouse}
           />
         </Box>
         <Divider />
+        {/* Kho đích */}
         <Box sx={{ my: 2 }}>
           <WarehouseSelectDialog
-            label="Destination Warehouse"
+            label="Kho đích"
             selectedWarehouse={destinationWarehouse || undefined}
             onSelect={setDestinationWarehouse}
           />
         </Box>
         <Divider />
+        {/* Chi tiết phiếu chuyển */}
         <Box sx={{ my: 2 }}>
           {transferDetails.map((detail, idx) => (
             <Box key={idx} sx={{ mb: 2 }}>
               <TransferDetailsForm
                 index={idx}
                 detail={detail}
-                onChange={(updated) => handleDetailChange(idx, updated)}
-                onRemove={() => handleRemoveDetail(idx)}
+                onChange={(updated) => {
+                  const newDetails = [...transferDetails];
+                  newDetails[idx] = updated;
+                  setTransferDetails(newDetails);
+                }}
+                onRemove={() => {
+                  setTransferDetails((td) => td.filter((_, i) => i !== idx));
+                }}
+                selectedVariantIds={transferDetails.map((d) => d.variantId)}
               />
             </Box>
           ))}
-          <Button variant="outlined" onClick={handleAddDetail} fullWidth>
-            + Add Another Variant
+
+          <Button
+            variant="outlined"
+            onClick={() =>
+              setTransferDetails((td) => [
+                ...td,
+                { variantId: 0, quantity: 0, costPrice: 0 },
+              ])
+            }
+            fullWidth
+          >
+            + Thêm sản phẩm khác
           </Button>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Hủy</Button>
         <Button variant="contained" onClick={handleSubmit}>
-          Create
+          Tạo phiếu
         </Button>
       </DialogActions>
     </Dialog>

@@ -9,7 +9,12 @@ import {
   Button,
   Grid,
   TextField,
-  MenuItem, // Import thêm MenuItem cho select
+  MenuItem,
+  InputAdornment,
+  Select,
+  FormControl,
+  InputLabel,
+  Typography,
 } from "@mui/material";
 
 export interface FilterData {
@@ -40,16 +45,45 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
   const [approvedDateTo, setApprovedDateTo] = useState(initialFilters.ApprovedDateTo || "");
   const [completedDateFrom, setCompletedDateFrom] = useState(initialFilters.CompletedDateFrom || "");
   const [completedDateTo, setCompletedDateTo] = useState(initialFilters.CompletedDateTo || "");
+  const [dateRange, setDateRange] = useState(""); // Tạo state cho khoảng ngày
+
+  // Hàm áp dụng khoảng ngày
+  const handleDateRangeChange = (range: string) => {
+    setDateRange(range);
+    const currentDate = new Date();
+    let startDate: string, endDate: string;
+    
+    switch (range) {
+      case "1_week":
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 7)).toISOString().split('T')[0];
+        endDate = new Date().toISOString().split('T')[0];
+        break;
+      case "1_month":
+        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1)).toISOString().split('T')[0];
+        endDate = new Date().toISOString().split('T')[0];
+        break;
+      case "1_year":
+        startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1)).toISOString().split('T')[0];
+        endDate = new Date().toISOString().split('T')[0];
+        break;
+      default:
+        return;
+    }
+    
+    setCreatedDateFrom(startDate);
+    setCreatedDateTo(endDate);
+  };
 
   const handleApply = () => {
+    // Tự động nhân 1000 vào TotalCostMin và TotalCostMax trước khi gửi đi
     const filters: FilterData = {
       Status: status,
       CreatedBy: createdBy,
       CreatedDateFrom: createdDateFrom,
       CreatedDateTo: createdDateTo,
       ReferenceNumber: referenceNumber,
-      TotalCostMin: totalCostMin,
-      TotalCostMax: totalCostMax,
+      TotalCostMin: totalCostMin ? totalCostMin * 1000 : "",
+      TotalCostMax: totalCostMax ? totalCostMax * 1000 : "",
       ApprovedDateFrom: approvedDateFrom,
       ApprovedDateTo: approvedDateTo,
       CompletedDateFrom: completedDateFrom,
@@ -79,129 +113,157 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     setApprovedDateTo("");
     setCompletedDateFrom("");
     setCompletedDateTo("");
+    setDateRange("");
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>Filter Inventory Imports</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+      {/* Header */}
+      <DialogTitle sx={{ backgroundColor: "#000", color: "#fff", fontWeight: 600, fontSize: "1.2rem" }}>
+        Lọc Nhập Kho
+      </DialogTitle>
+
+      {/* Nội dung Dialog */}
+      <DialogContent sx={{ backgroundColor: "#fff" }}>
+        <Typography variant="h6" sx={{ color: "black", mb: 2 }}>
+          Chọn các tiêu chí lọc cho nhập kho
+        </Typography>
+        <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
             <TextField
               select
-              label="Status"
+              label="Trạng thái"
               fullWidth
               value={status}
               onChange={(e) => setStatus(e.target.value)}
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "black",
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#ccc",
+                },
+              }}
             >
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="approved">Approved</MenuItem>
-              <MenuItem value="rejected">Rejected</MenuItem>
+              <MenuItem value="">Không</MenuItem>
+              <MenuItem value="pending">Chờ xử lý</MenuItem>
+              <MenuItem value="approved">Đã duyệt</MenuItem>
+              <MenuItem value="rejected">Từ chối</MenuItem>
             </TextField>
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              label="Created By"
+              label="Người tạo"
               fullWidth
               type="number"
               value={createdBy}
               onChange={(e) => setCreatedBy(e.target.value)}
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "black",
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#ccc",
+                },
+              }}
             />
           </Grid>
+
+          {/* Khoảng ngày */}
           <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Created Date From"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={createdDateFrom}
-              onChange={(e) => setCreatedDateFrom(e.target.value)}
-            />
+            <FormControl fullWidth>
+              <InputLabel sx={{ color: "black" }}>Khoảng ngày</InputLabel>
+              <Select
+                value={dateRange}
+                onChange={(e) => handleDateRangeChange(e.target.value)}
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  color: "black",
+                  borderRadius: "8px",
+                  "& .MuiOutlinedInput-root": {
+                    borderColor: "#ccc",
+                  },
+                }}
+              >
+                <MenuItem value="1_week">1 tuần</MenuItem>
+                <MenuItem value="1_month">1 tháng</MenuItem>
+                <MenuItem value="1_year">1 năm</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
+
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              label="Created Date To"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={createdDateTo}
-              onChange={(e) => setCreatedDateTo(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Reference Number"
+              label="Mã tham chiếu"
               fullWidth
               value={referenceNumber}
               onChange={(e) => setReferenceNumber(e.target.value)}
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "black",
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#ccc",
+                },
+              }}
             />
           </Grid>
+
+          {/* Khoảng giá */}
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              label="Total Cost Min"
+              label="Giá trị tối thiểu"
               fullWidth
               type="number"
               value={totalCostMin}
               onChange={(e) => setTotalCostMin(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">VND(đơn vị nghìn)</InputAdornment>,
+              }}
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "black",
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#ccc",
+                },
+              }}
             />
           </Grid>
+
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              label="Total Cost Max"
+              label="Giá trị tối đa"
               fullWidth
               type="number"
               value={totalCostMax}
               onChange={(e) => setTotalCostMax(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Approved Date From"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={approvedDateFrom}
-              onChange={(e) => setApprovedDateFrom(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Approved Date To"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={approvedDateTo}
-              onChange={(e) => setApprovedDateTo(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Completed Date From"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={completedDateFrom}
-              onChange={(e) => setCompletedDateFrom(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Completed Date To"
-              fullWidth
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={completedDateTo}
-              onChange={(e) => setCompletedDateTo(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">VND</InputAdornment>,
+              }}
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "black",
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-root": {
+                  borderColor: "#ccc",
+                },
+              }}
             />
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClear}>Clear</Button>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleApply} variant="contained">
-          Apply
+
+      {/* Footer Actions */}
+      <DialogActions sx={{ backgroundColor: "#f5f5f5" }}>
+        <Button onClick={handleClear} sx={{ color: "black", fontWeight: 500 }}>
+          Xóa
+        </Button>
+        <Button onClick={onClose} sx={{ color: "black", fontWeight: 500 }}>
+          Hủy
+        </Button>
+        <Button onClick={handleApply} variant="contained" sx={{ backgroundColor: "#000", color: "white", fontWeight: 600 }}>
+          Áp dụng
         </Button>
       </DialogActions>
     </Dialog>

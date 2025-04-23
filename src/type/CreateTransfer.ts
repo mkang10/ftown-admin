@@ -2,7 +2,7 @@
 export interface TransferDetail {
     variantId: number;
     quantity: number;
-    unitPrice: number;
+    costPrice: number;
   }
   
   // Payload khi tạo Transfer

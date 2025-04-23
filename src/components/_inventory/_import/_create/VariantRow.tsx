@@ -2,20 +2,20 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  TextField,
-  IconButton,
   Typography,
-  Alert,
+  TextField,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import WarehouseDialogSelect from "./WareHouseDialogSelect";
 import StoreAllocationList from "./StoreAllocationList";
+import WarehouseDialogSelect from "./WareHouseDialogSelect";
 import { StoreAllocation } from "./StoreAllocationRow";
 import { Warehouse } from "@/type/warehouse";
 
 export interface VariantRowProps {
   index: number;
-  unitPrice: number;
+  costPrice: number;
   quantity: number;
   productDisplay: string;
   storeAllocations: StoreAllocation[];
@@ -45,7 +45,7 @@ export interface VariantRowProps {
 
 const VariantRow: React.FC<VariantRowProps> = ({
   index,
-  unitPrice,
+  costPrice,
   quantity,
   productDisplay,
   storeAllocations,
@@ -61,7 +61,7 @@ const VariantRow: React.FC<VariantRowProps> = ({
   onAddStoreAllocation,
   onRemoveStoreAllocation,
 }) => {
-  const [localUnitPrice, setLocalUnitPrice] = useState(unitPrice.toString());
+  const [localUnitPrice, setLocalUnitPrice] = useState(costPrice.toString());
   const [localQuantity, setLocalQuantity] = useState(quantity.toString());
   const [warehouseNames, setWarehouseNames] = useState<string[]>(
     storeAllocations.map(() => "")
@@ -69,127 +69,215 @@ const VariantRow: React.FC<VariantRowProps> = ({
   const [openWarehouseDialog, setOpenWarehouseDialog] = useState(false);
   const [selectedAllocationIndex, setSelectedAllocationIndex] = useState(0);
 
-  // Sync warehouseNames array length & reset names whenever allocations change
-// Cập nhật warehouseNames theo storeAllocations và danh sách warehouses
-useEffect(() => {
-  setWarehouseNames(
-    storeAllocations.map((alloc) => {
-      const found = warehouses.find(
-        (w) => w.warehouseId === alloc.wareHouseId
-      );
-      return found?.warehouseName || "";
-    })
-  );
-}, [storeAllocations, warehouses]);
+  // Đồng bộ tên kho
+  useEffect(() => {
+    setWarehouseNames(
+      storeAllocations.map((alloc) => {
+        const found = warehouses.find((w) => w.warehouseId === alloc.wareHouseId);
+        return found?.warehouseName || "";
+      })
+    );
+  }, [storeAllocations, warehouses]);
 
-
-  // Compute allocation error on the fly
+  // Tính lỗi phân bổ
   const parsedQty = parseInt(localQuantity, 10) || 0;
-  const totalAllocated = storeAllocations.reduce(
-    (sum, a) => sum + a.allocatedQuantity,
-    0
-  );
+  const totalAllocated = storeAllocations.reduce((sum, a) => sum + a.allocatedQuantity, 0);
   let allocationError = "";
   if (distributionMode === "custom") {
     if (totalAllocated < parsedQty) {
-      allocationError = `Sản phẩm phân bổ (${totalAllocated}) < tổng sản phẩm (${parsedQty})`;
+      allocationError = `Phân bổ (${totalAllocated}) < tổng (${parsedQty})`;
     } else if (totalAllocated > parsedQty) {
-      allocationError = `Sản phẩm phân bổ (${totalAllocated}) > tổng sản phẩm (${parsedQty})`;
+      allocationError = `Phân bổ (${totalAllocated}) > tổng (${parsedQty})`;
     }
   }
 
   const handleStoreSelect = (warehouse: Warehouse) => {
     onStoreIdChange(index, selectedAllocationIndex, warehouse.warehouseId);
     setWarehouseNames((prev) => {
-      const arr = [...prev];
-      arr[selectedAllocationIndex] = warehouse.warehouseName;
-      return arr;
+      const a = [...prev];
+      a[selectedAllocationIndex] = warehouse.warehouseName;
+      return a;
     });
     setOpenWarehouseDialog(false);
   };
 
   return (
-    <Box sx={{ border: "1px solid #ddd", p: 2, borderRadius: 1, mb: 2 }}>
+    <Box
+    sx={{
+      p: 3,
+      mb: 3,
+      backgroundColor: "#ffffff",
+      border: "0px solid #e0e0e0",
+      borderRadius: "12px",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+      transition: "all 0.3s ease",
+      "&:hover": {
+        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
+      },
+    }}
+  >
+  
+
       {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Typography color="error" sx={{ mb: 2, fontWeight: 600 }}>
           {errorMessage}
-        </Alert>
+        </Typography>
       )}
 
       {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          onClick={() => onVariantClick(index)}
-          sx={{ cursor: "pointer", fontWeight: "bold", flex: 1 }}
-        >
-          {productDisplay || "Select variant"}
-        </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+      <Typography
+  onClick={() => onVariantClick(index)}
+  sx={{
+    flex: 1,
+    fontWeight: 600,
+    textTransform: "none",
+    fontSize: "1.1rem",
+    color: "#222",
+    cursor: "pointer",
+    "&:hover": { textDecoration: "underline" },
+  }}
+>
+
+  {productDisplay || "Chọn biến thể sản phẩm"}
+</Typography>
+
         {index > 0 && (
-          <IconButton onClick={() => onRemoveRow(index)} size="small">
-            <DeleteIcon color="error" />
-          </IconButton>
+      <IconButton
+      onClick={() => onRemoveRow(index)}
+      sx={{
+        border: "0px solid #ccc",
+        color: "#333",
+        borderRadius: "10px",
+        "&:hover": {
+          backgroundColor: "#000",
+          color: "#fff",
+        },
+      }}
+    >
+    
+         <DeleteIcon fontSize="small" />
+       </IconButton>
+       
         )}
       </Box>
 
-      {/* Unit price & quantity */}
-      <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <TextField
-          label="Unit Price"
-          type="number"
-          value={localUnitPrice}
-          onChange={(e) => {
-            const v = e.target.value;
-            setLocalUnitPrice(v);
-            onUnitPriceChange(index, parseFloat(v) || 0);
-          }}
-          fullWidth
-        />
-        <TextField
-          label="Quantity"
-          type="number"
-          value={localQuantity}
-          onChange={(e) => {
-            const v = e.target.value;
-            setLocalQuantity(v);
-            onQuantityChange(index, parseInt(v, 10) || 0);
-          }}
-          fullWidth
-        />
-      </Box>
+      {/* Giá nhập & Số lượng */}
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+  {/* GIÁ NHẬP */}
+  <TextField
+    label="Giá nhập"
+    variant="outlined"
+    type="number"
+    value={localUnitPrice}
+    onChange={(e) => {
+      const raw = e.target.value.replace(/[^0-9]/g, ""); // Loại bỏ ký tự đặc biệt
+      const parsed = parseFloat(raw);
+      const valid = isNaN(parsed) ? 0 : parsed;
+      setLocalUnitPrice(valid.toString());
+      onUnitPriceChange(index, valid * 1000);
+    }}
+    onKeyDown={(e) => {
+      if (
+        ["-", "+", "e", "E", ".", ",", "*", "/", "\\"].includes(e.key)
+      ) {
+        e.preventDefault();
+      }
+    }}
+    fullWidth
+    InputLabelProps={{
+      style: { color: "#000", fontWeight: 600, letterSpacing: "0.5px" },
+    }}
+    InputProps={{
+      endAdornment: (
+        <InputAdornment position="end">VND (đơn vị nghìn)</InputAdornment>
+      ),
+      style: { fontWeight: 500 },
+      inputProps: { min: 0 },
+    }}
+    sx={{
+      backgroundColor: "#f8f8f8",
+      borderRadius: 2,
+      "& .MuiOutlinedInput-root": {
+        "& fieldset": { borderColor: "#fff" },
+        "&:hover fieldset": { borderColor: "#444" },
+        "&.Mui-focused fieldset": {
+          borderColor: "#000",
+          borderWidth: 1,
+        },
+      },
+    }}
+  />
 
-      {/* Allocation error */}
+  {/* SỐ LƯỢNG */}
+  <TextField
+    label="Số lượng"
+    variant="outlined"
+    type="number"
+    value={localQuantity}
+    onChange={(e) => {
+      const raw = e.target.value.replace(/[^0-9]/g, "");
+      const parsed = parseInt(raw, 10);
+      const valid = isNaN(parsed) ? 0 : parsed;
+      setLocalQuantity(valid.toString());
+      onQuantityChange(index, valid);
+    }}
+    onKeyDown={(e) => {
+      if (
+        ["-", "+", "e", "E", ".", ",", "*", "/", "\\"].includes(e.key)
+      ) {
+        e.preventDefault();
+      }
+    }}
+    fullWidth
+    InputLabelProps={{
+      style: { color: "#000", fontWeight: 600, letterSpacing: "0.5px" },
+    }}
+    InputProps={{
+      style: { fontWeight: 500 },
+      inputProps: { min: 0 },
+    }}
+    sx={{
+      backgroundColor: "#f8f8f8",
+      borderRadius: 2,
+      "& .MuiOutlinedInput-root": {
+        "& fieldset": { borderColor: "#fff" },
+        "&:hover fieldset": { borderColor: "#444" },
+        "&.Mui-focused fieldset": {
+          borderColor: "#000",
+          borderWidth: 1,
+        },
+      },
+    }}
+  />
+</Box>
+
+
+
+      {/* Lỗi phân bổ */}
       {distributionMode === "custom" && allocationError && (
-        <Typography color="error" sx={{ mt: 1 }}>
+        <Typography color="error" sx={{ mb: 2, fontWeight: 600 }}>
           {allocationError}
         </Typography>
       )}
 
-      {/* Store allocation list */}
+      {/* Danh sách phân bổ */}
       <StoreAllocationList
         allocations={storeAllocations}
         warehouseNames={warehouseNames}
         distributionMode={distributionMode}
         allocationError={allocationError}
-        onAllocationChange={(aIdx, val) =>
-          onAllocationChange(index, aIdx, val)
-        }
-        onRemoveStoreAllocation={(aIdx) =>
-          onRemoveStoreAllocation(index, aIdx)
-        }
+        onAllocationChange={(aIdx, val) => onAllocationChange(index, aIdx, val)}
         onAddStoreAllocation={() => onAddStoreAllocation(index)}
         onOpenWarehouse={(aIdx) => {
           setSelectedAllocationIndex(aIdx);
           setOpenWarehouseDialog(true);
         }}
+        onRemoveStoreAllocation={(aIdx) => onRemoveStoreAllocation(index, aIdx)}
+
       />
 
-      {/* Warehouse selection dialog */}
+      {/* Chọn kho */}
       <WarehouseDialogSelect
         open={openWarehouseDialog}
         onClose={() => setOpenWarehouseDialog(false)}

@@ -62,8 +62,8 @@ const TransferDetailRow: React.FC<TransferDetailRowProps> = ({
         </Grid>
         <Grid item xs={4}>
           <TextField
-            label="Unit Price"
-            type="number"
+            label="Cost Price"
+            type="hidden"
             value={detail.unitPrice}
             onChange={handleChange("unitPrice")}
             fullWidth
