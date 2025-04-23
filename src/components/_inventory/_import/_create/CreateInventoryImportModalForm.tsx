@@ -211,23 +211,22 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
   Tạo Phiếu Nhập Kho
 </Typography>
 
-        {/* Mode selector */}
-        <RadioGroup hidden
+<RadioGroup
   row
   value={mode}
   onChange={(e) => setMode(e.target.value as "custom" | "equal")}
-  sx={{ gap: 3, color: "black" }}
+  sx={{ gap: 3, color: "black", display: "none" }} // <- Ẩn tại đây
 >
   <FormControlLabel
     value="custom"
     control={<Radio sx={{ color: "black" }} />}
     label="Phân phối thủ công"
-/>
+  />
   <FormControlLabel
     value="equal"
     control={<Radio sx={{ color: "black" }} />}
     label="Chia đều tự động"
-/>
+  />
 </RadioGroup>
 
 
