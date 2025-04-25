@@ -78,7 +78,7 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
               <Typography variant="subtitle1" sx={{ mb: 1 }}>
                 {item.productVariantName}
               </Typography>
-              {/* <Grid container spacing={2}>
+              <Grid container spacing={2} display={"none"}>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Unit Price"
@@ -90,7 +90,7 @@ export const CreateSupplementModal: React.FC<CreateSupplementModalProps> = ({
                     placeholder="Nhập đơn giá"
                   />
                 </Grid>
-              </Grid> */}
+              </Grid>
             </Box>
           ))}
         </Box>

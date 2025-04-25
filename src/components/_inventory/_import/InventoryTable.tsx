@@ -44,10 +44,9 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
   };
 
   const createSortHandler = (field: string) => () => {
-    let newDirection: "asc" | "desc" = "asc";
-    if (sortField === field && sortDirection === "asc") {
-      newDirection = "desc";
-    }
+    // Default to descending, toggle to ascending if already descending
+    const isSameField = sortField === field;
+    const newDirection: "asc" | "desc" = isSameField && sortDirection === "desc" ? "asc" : "desc";
     onSortChange(field, newDirection);
   };
 
@@ -59,7 +58,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableCell align="left">
               <TableSortLabel
                 active={sortField === "ReferenceNumber"}
-                direction={sortField === "ReferenceNumber" ? sortDirection : "asc"}
+                direction={sortField === "ReferenceNumber" ? sortDirection : "desc"}
                 onClick={createSortHandler("ReferenceNumber")}
               >
                 Số tham chiếu
@@ -68,7 +67,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableCell className="hidden" align="left">
               <TableSortLabel
                 active={sortField === "CreatedByName"}
-                direction={sortField === "CreatedByName" ? sortDirection : "asc"}
+                direction={sortField === "CreatedByName" ? sortDirection : "desc"}
                 onClick={createSortHandler("CreatedByName")}
               >
                 Người nhập
@@ -77,16 +76,16 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableCell align="center">
               <TableSortLabel
                 active={sortField === "TotalCost"}
-                direction={sortField === "TotalCost" ? sortDirection : "asc"}
+                direction={sortField === "TotalCost" ? sortDirection : "desc"}
                 onClick={createSortHandler("TotalCost")}
               >
-                Tổng chi phí 
+                Tổng chi phí
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
               <TableSortLabel
                 active={sortField === "Status"}
-                direction={sortField === "Status" ? sortDirection : "asc"}
+                direction={sortField === "Status" ? sortDirection : "desc"}
                 onClick={createSortHandler("Status")}
               >
                 Trạng thái
@@ -95,7 +94,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             <TableCell align="center">
               <TableSortLabel
                 active={sortField === "CreatedDate"}
-                direction={sortField === "CreatedDate" ? sortDirection : "asc"}
+                direction={sortField === "CreatedDate" ? sortDirection : "desc"}
                 onClick={createSortHandler("CreatedDate")}
               >
                 Ngày nhập
@@ -136,10 +135,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   <Chip label="Supplement Created" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
               </TableCell>
-
-              <TableCell align="center">
-                {new Date(row.createdDate).toLocaleString()}
-              </TableCell>
+              <TableCell align="center">{new Date(row.createdDate).toLocaleString()}</TableCell>
               <TableCell align="center">
                 {row.status === "Pending" ? (
                   <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>

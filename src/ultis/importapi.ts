@@ -22,9 +22,9 @@ export const getPendingInventoryImports = async (): Promise<PendingInventoryResp
 
 export const getProductVariants = async (
   page: number = 1,
-  pageSize: number = 5
+  pageSize: number = 5,
+  search: string = ""
 ): Promise<{ data: productVariant[]; totalRecords: number }> => {
-
   try {
     const response = await shopmanagerclient.get<{
       data: {
@@ -35,7 +35,12 @@ export const getProductVariants = async (
       };
       status: boolean;
       message: string;
-    }>(`/inventoryimport/product?page=${page}&pageSize=${pageSize}`);
+    }>(
+      `/inventoryimport/product`, 
+      {
+        params: { page, pageSize, search }
+      }
+    );
     if (response.data.status) {
       return {
         data: response.data.data.data,

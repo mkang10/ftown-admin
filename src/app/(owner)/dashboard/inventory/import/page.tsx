@@ -38,7 +38,8 @@ export default function InventoryApprovalPage() {
 
   // Sắp xếp
   const [sortField, setSortField] = useState<string>("importId");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  // Mặc định giảm dần
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   // Dialog filter
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
@@ -85,7 +86,8 @@ export default function InventoryApprovalPage() {
 
   // Sắp xếp
   const handleSortChange = (field: string) => {
-    const newDirection = sortField === field && sortDirection === "asc" ? "desc" : "asc";
+    const isSame = sortField === field;
+    const newDirection: "asc" | "desc" = isSame && sortDirection === "desc" ? "asc" : "desc";
     setSortField(field);
     setSortDirection(newDirection);
     setPage(1);

@@ -1,85 +1,214 @@
 "use client";
+import React, { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Grid,
+  Box,
+  Typography,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  Paper,
+  Skeleton,
+  Grow,
+} from "@mui/material";
+import {
+  Inventory,
+  MonetizationOn,
+  LocalShipping,
+  TrendingUp,
+} from "@mui/icons-material";
+import InfoCard from "@/components/Dashboard/InfoCard";
+import StatusPieChart, { StatusCount } from "@/components/Dashboard/StatusPieChart";
+import { DashboardData } from "@/type/dashboard";
+import { getDashboard } from "@/ultis/dashboardapi";
+import RevenuePage from "./revenue/page";
 
-import React from 'react';
-import StatsCard from '@/components/StatCard';
-import { FaUsers, FaDollarSign, FaUserPlus, FaChartLine } from 'react-icons/fa';
+const DashboardOverviewPage: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const router = useRouter();
 
-export default function DashboardPage() {
-  const colors = ["#f0f0f0", "#ffffff"]; // Mảng màu trắng và xám
+  const statusOptions = useMemo(() => {
+    if (!data) return [];
+    const imp = data.importStatusCounts.map((s) => s.status);
+    const disp = data.dispatchStatusCounts.map((s) => s.status);
+    const transf = data.transferStatusCounts.map((s) => s.status);
+    return Array.from(new Set([...imp, ...disp, ...transf]));
+  }, [data]);
+
+  useEffect(() => {
+    setLoading(true);
+    getDashboard(statusFilter)
+      .then((res) => setData(res.data))
+      .catch((error) => console.error("Error fetching dashboard:", error))
+      .finally(() => setLoading(false));
+  }, [statusFilter]);
 
   return (
-    <div>
-      {/* MAIN CONTENT */}
-      <main className="p-4 md:p-6 lg:p-8">
-        {/* Dòng thống kê */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatsCard
-            title="Today's Money"
-            value="$53,000"
-            percentage="55%"
-            icon={<FaDollarSign className="w-5 h-5" />}
-            bgColor={colors[0]} // Màu nền xám
-          />
-          <StatsCard
-            title="Today's Users"
-            value="2,300"
-            percentage="3%"
-            icon={<FaUsers className="w-5 h-5" />}
-            bgColor={colors[1]} // Màu nền trắng
-          />
-          <StatsCard
-            title="New Clients"
-            value="+3,462"
-            percentage="2%"
-            icon={<FaUserPlus className="w-5 h-5" />}
-            bgColor={colors[0]} // Màu nền xám
-          />
-          <StatsCard
-            title="Sales"
-            value="$103,430"
-            percentage="5%"
-            icon={<FaChartLine className="w-5 h-5" />}
-            bgColor={colors[1]} // Màu nền trắng
-          />
-        </div>
+    <Box
+      sx={{
+        p: 4,
+        bgcolor: "#f4f4f4", // nền xám nhạt thay vì trắng tinh
+        minHeight: "100vh",
+        color: "#111",
+      }}
+    >
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        textAlign="center"
+        mb={4}
+        sx={{ color: "#111" }}
+      >
+        Thống Kê Nhập - Xuất - Chuyển Kho
+      </Typography>
 
-        {/* Row nội dung: ví dụ 2 card */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Build by developers
-            </h3>
-            <p className="text-sm text-gray-600">
-              Soft UI Dashboard <strong>From colors, cards, typography</strong> to complex
-              elements, you will find the full documentation.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Work with the rockets
-            </h3>
-            <p className="text-sm text-gray-600">
-              Wealth creation is an evolutionary recent positive-sum game.
-              It is all about who takes the opportunity first.
-            </p>
-          </div>
-        </div>
+      <Grow in>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 5,
+            border: "1px solid #ccc",
+            borderRadius: 3,
+            backgroundColor: "#fff",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <FormControl sx={{ minWidth: 280 }} disabled={loading}>
+            <InputLabel id="status-filter-label">Lọc theo trạng thái</InputLabel>
+            <Select
+              labelId="status-filter-label"
+              value={statusFilter}
+              label="Lọc theo trạng thái"
+              onChange={(e) => setStatusFilter(e.target.value)}
+              renderValue={(selected) =>
+                selected ? <Chip label={selected} /> : <em>Tất cả</em>
+              }
+              sx={{
+                bgcolor: "#fff",
+              }}
+            >
+              <MenuItem value="">
+                <em>Tất cả</em>
+              </MenuItem>
+              {statusOptions.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
+        </Paper>
+      </Grow>
 
-        {/* Chart / Sales Overview placeholder */}
-        <div className="bg-white rounded-xl shadow p-4 mb-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Sales Overview
-          </h3>
-          <p className="text-sm text-gray-600">
-            <strong>+4% more</strong> in 2021
-          </p>
-          <div className="mt-4 h-48 bg-gray-100 flex items-center justify-center">
-            {/* Chart placeholder */}
-            <span className="text-gray-400">[Chart Placeholder]</span>
-          </div>
-        </div>
+      <Grid container spacing={3} mb={6}>
+        {[
+          {
+            title: "Tổng lượt nhập kho",
+            value: data?.totalImports,
+            icon: <Inventory sx={{ color: "#333" }} />,
+            path: "/dashboard/detail/imports",
+          },
+          {
+            title: "Tổng chi phí nhập",
+            value: data?.totalImportCost?.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }),
+            icon: <MonetizationOn sx={{ color: "#333" }} />,
+            path: "/dashboard/detail/imports",
+          },
+          {
+            title: "Tổng lượt xuất kho",
+            value: data?.totalDispatches,
+            icon: <LocalShipping sx={{ color: "#333" }} />,
+            path: "/dashboard/detail/dispatches",
+          },
+          {
+            title: "Tổng lượt chuyển kho",
+            value: data?.totalTransfers,
+            icon: <TrendingUp sx={{ color: "#333" }} />,
+            path: "/dashboard/detail/transfers",
+          },
+        ].map((item, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            {loading || item.value === undefined ? (
+              <Skeleton variant="rectangular" height={140} />
+            ) : (
+              <InfoCard
+                title={item.title}
+                value={item.value}
+                icon={item.icon}
+                onClick={() => router.push(item.path)}
+                sx={{
+                  backgroundColor: "#fff",
+                  border: "1px solid #ddd",
+                  borderRadius: 3,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  },
+                }}
+              />
+            )}
+          </Grid>
+        ))}
+      </Grid>
 
-      </main>
-    </div>
+      <Grid container spacing={4}>
+        {[
+          { title: "Tình trạng Nhập kho", data: data?.importStatusCounts },
+          { title: "Tình trạng Xuất kho", data: data?.dispatchStatusCounts },
+          { title: "Tình trạng Chuyển kho", data: data?.transferStatusCounts },
+        ].map((chart, index) => (
+          <Grid item xs={12} md={4} key={index}>
+            {loading || !chart.data ? (
+              <Skeleton variant="rectangular" height={240} />
+            ) : (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  border: "1px solid #ddd",
+                  borderRadius: 3,
+                  backgroundColor: "#fff",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                }}
+              >
+                <StatusPieChart
+                  title={chart.title}
+                  data={chart.data as StatusCount[]}
+                />
+              </Paper>
+            )}
+          </Grid>
+        ))}
+      </Grid>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 4,
+          backgroundColor: '#fff',
+          borderRadius: 3,
+          border: '1px solid #ddd',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+          mt : '40px'
+        }}
+      >
+        <RevenuePage />
+      </Paper>
+    </Box>
   );
-}
+};
+
+export default DashboardOverviewPage;
