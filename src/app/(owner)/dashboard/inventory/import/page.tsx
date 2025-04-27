@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback ,useRef } from "react";
 import {
   Box,
   Typography,
@@ -21,6 +21,7 @@ import {
 import {
   approveInventoryImport,
   filterInventoryImports,
+  importInventoryFromExcel,
   rejectInventoryImport,
 } from "@/ultis/importapi";
 import FilterDialog, { FilterData } from "@/components/_inventory/_import/FIlterForm";
@@ -28,6 +29,9 @@ import FilterDialog, { FilterData } from "@/components/_inventory/_import/FIlter
 export default function InventoryApprovalPage() {
   const [data, setData] = useState<InventoryImportItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
+ // state mới cho upload Excel
+ const [loadingExcel, setLoadingExcel] = useState(false);
+ const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter state
   const [currentFilter, setCurrentFilter] = useState<FilterData>({});
@@ -52,7 +56,34 @@ export default function InventoryApprovalPage() {
 
   // Dialog create import
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+// hàm gọi API import từ Excel
+const handleExcelImport = async (file: File) => {
+  setLoadingExcel(true);
+  try {
+    const result = await importInventoryFromExcel(file);
+    toast.success(result.message || "Import thành công");
+    fetchData();
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err.message || "Import thất bại");
+  } finally {
+    setLoadingExcel(false);
+  }
+};
 
+// khi bấm nút, mở file picker
+const onClickExcelButton = () => {
+  fileInputRef.current?.click();
+};
+
+// khi chọn file xong
+const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  handleExcelImport(file);
+  // reset lại để có thể chọn lại file cùng tên sau này
+  e.target.value = "";
+};
   // Memoize fetchData để dùng cả trong useEffect và onSuccess của CreateInventoryImportModal
   const fetchData = useCallback(async () => {
     try {
@@ -181,6 +212,26 @@ export default function InventoryApprovalPage() {
         >
           <FilterListIcon />
         </IconButton>
+        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={onClickExcelButton}
+          disabled={loadingExcel}
+          sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: '#333' } }}
+        >
+          {loadingExcel ? "Đang import..." : "Import từ Excel"}
+        </Button>
+      
+      </Box>
+
+      {/* input file ẩn */}
+      <input
+        type="file"
+        accept=".xlsx, .xls"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={onChangeExcelFile}
+      />
         <Button
           variant="contained"
           onClick={() => setCreateModalOpen(true)}

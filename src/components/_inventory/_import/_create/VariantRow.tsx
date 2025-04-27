@@ -8,9 +8,6 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import StoreAllocationList from "./StoreAllocationList";
-import WarehouseDialogSelect from "./WareHouseDialogSelect";
-import { StoreAllocation } from "./StoreAllocationRow";
 import { Warehouse } from "@/type/warehouse";
 
 export interface VariantRowProps {
@@ -18,7 +15,6 @@ export interface VariantRowProps {
   costPrice: number;
   quantity: number;
   productDisplay: string;
-  storeAllocations: StoreAllocation[];
   warehouses: Warehouse[];
   distributionMode: "equal" | "custom";
   errorMessage?: string;
@@ -48,7 +44,6 @@ const VariantRow: React.FC<VariantRowProps> = ({
   costPrice,
   quantity,
   productDisplay,
-  storeAllocations,
   warehouses,
   distributionMode,
   errorMessage,
@@ -63,43 +58,8 @@ const VariantRow: React.FC<VariantRowProps> = ({
 }) => {
   const [localUnitPrice, setLocalUnitPrice] = useState(costPrice.toString());
   const [localQuantity, setLocalQuantity] = useState(quantity.toString());
-  const [warehouseNames, setWarehouseNames] = useState<string[]>(
-    storeAllocations.map(() => "")
-  );
-  const [openWarehouseDialog, setOpenWarehouseDialog] = useState(false);
-  const [selectedAllocationIndex, setSelectedAllocationIndex] = useState(0);
+  
 
-  // Đồng bộ tên kho
-  useEffect(() => {
-    setWarehouseNames(
-      storeAllocations.map((alloc) => {
-        const found = warehouses.find((w) => w.warehouseId === alloc.wareHouseId);
-        return found?.warehouseName || "";
-      })
-    );
-  }, [storeAllocations, warehouses]);
-
-  // Tính lỗi phân bổ
-  const parsedQty = parseInt(localQuantity, 10) || 0;
-  const totalAllocated = storeAllocations.reduce((sum, a) => sum + a.allocatedQuantity, 0);
-  let allocationError = "";
-  if (distributionMode === "custom") {
-    if (totalAllocated < parsedQty) {
-      allocationError = `Phân bổ (${totalAllocated}) < tổng (${parsedQty})`;
-    } else if (totalAllocated > parsedQty) {
-      allocationError = `Phân bổ (${totalAllocated}) > tổng (${parsedQty})`;
-    }
-  }
-
-  const handleStoreSelect = (warehouse: Warehouse) => {
-    onStoreIdChange(index, selectedAllocationIndex, warehouse.warehouseId);
-    setWarehouseNames((prev) => {
-      const a = [...prev];
-      a[selectedAllocationIndex] = warehouse.warehouseName;
-      return a;
-    });
-    setOpenWarehouseDialog(false);
-  };
 
   return (
     <Box
@@ -254,35 +214,11 @@ const VariantRow: React.FC<VariantRowProps> = ({
 
 
 
-      {/* Lỗi phân bổ */}
-      {distributionMode === "custom" && allocationError && (
-        <Typography color="error" sx={{ mb: 2, fontWeight: 600 }}>
-          {allocationError}
-        </Typography>
-      )}
+     
 
-      {/* Danh sách phân bổ */}
-      <StoreAllocationList
-        allocations={storeAllocations}
-        warehouseNames={warehouseNames}
-        distributionMode={distributionMode}
-        allocationError={allocationError}
-        onAllocationChange={(aIdx, val) => onAllocationChange(index, aIdx, val)}
-        onAddStoreAllocation={() => onAddStoreAllocation(index)}
-        onOpenWarehouse={(aIdx) => {
-          setSelectedAllocationIndex(aIdx);
-          setOpenWarehouseDialog(true);
-        }}
-        onRemoveStoreAllocation={(aIdx) => onRemoveStoreAllocation(index, aIdx)}
+      
 
-      />
-
-      {/* Chọn kho */}
-      <WarehouseDialogSelect
-        open={openWarehouseDialog}
-        onClose={() => setOpenWarehouseDialog(false)}
-        onSelect={handleStoreSelect}
-      />
+     
     </Box>
   );
 };

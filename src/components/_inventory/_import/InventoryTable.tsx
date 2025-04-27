@@ -135,7 +135,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                   <Chip label="Supplement Created" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
               </TableCell>
-              <TableCell align="center">{new Date(row.createdDate).toLocaleString()}</TableCell>
+              <TableCell align="center">{row.createdDate}</TableCell>
               <TableCell align="center">
                 {row.status === "Pending" ? (
                   <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>

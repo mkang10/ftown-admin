@@ -9,8 +9,16 @@ import axios, { AxiosInstance } from 'axios';
 //   },
 // });
 
+// const authclient: AxiosInstance = axios.create({
+//   baseURL: 'https://ftauthservice.azurewebsites.net/api/',
+//   headers: {
+//     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
+//     Accept: '*/*',
+//   },
+// });
+
 const authclient: AxiosInstance = axios.create({
-  baseURL: 'https://ftauthservice.azurewebsites.net/api/',
+  baseURL: 'https://localhost:7261/api/',
   headers: {
     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
     Accept: '*/*',

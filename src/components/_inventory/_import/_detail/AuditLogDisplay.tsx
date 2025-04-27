@@ -52,7 +52,7 @@ export const AuditLogDisplay: React.FC<AuditLogDisplayProps> = ({ auditLogs }) =
                 </Typography>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="body1">
+                {/* <Typography variant="body1">
                   <strong>Dữ Liệu Thay Đổi:</strong>
                 </Typography>
                 <RenderValue
@@ -65,7 +65,7 @@ export const AuditLogDisplay: React.FC<AuditLogDisplayProps> = ({ auditLogs }) =
                       }
                     })()
                   }
-                />
+                /> */}
               </Grid>
             </Grid>
           </AccordionDetails>

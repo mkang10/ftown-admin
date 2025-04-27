@@ -278,3 +278,42 @@ export const createInventoryImport = async (
     throw error;
   }
 };
+
+export const importInventoryFromExcel = async (
+  file: File
+): Promise<InventoryImportCreateResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await adminclient.post('/inventoryimport/create-from-excel', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    responseType: 'blob',
+  });
+
+  // Lấy tên file từ header nếu có
+  const contentDisposition = response.headers['content-disposition'];
+  let filename = 'PhieuNhap.docx';
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, '');
+    }
+  }
+
+  // Tạo URL blob và trigger download
+  const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.setAttribute('download', filename);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+
+  return {
+    status: true,
+    message: 'Tạo import thành công và file biên bản đã được tải về.',
+    data: null,
+  };
+};

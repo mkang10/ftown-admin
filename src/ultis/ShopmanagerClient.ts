@@ -13,16 +13,24 @@ import axios, { AxiosInstance } from 'axios';
 // });
 
 //localhost
+// const shopmanagerclient: AxiosInstance = axios.create({
+//   baseURL: 'https://ftsmservice.azurewebsites.net/api/',
+//   headers: {
+//     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
+//     Accept: '*/*',
+//   },
+// });
+
+//localhost
 const shopmanagerclient: AxiosInstance = axios.create({
-  baseURL: 'https://ftsmservice.azurewebsites.net/api/',
+  baseURL: 'https://localhost:7000/api/',
   headers: {
     'Content-Type': 'application/json;odata.metadata=minimal;odata.streaming=true',
     Accept: '*/*',
   },
 });
 
-
-
+https://localhost:7000/
 
 // Thêm interceptor để tự động thêm token vào tiêu đề
 shopmanagerclient.interceptors.request.use(
