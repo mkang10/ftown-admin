@@ -115,7 +115,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
             >
               <TableCell align="left">{row.referenceNumber}</TableCell>
               <TableCell className="hidden" align="left">{row.createdByName}</TableCell>
-              <TableCell align="center">{row.totalCost}</TableCell>
+              <TableCell align="center">{row.totalCost}VND</TableCell>
               <TableCell align="center">
                 {row.status === "Pending" && (
                   <Chip

@@ -219,7 +219,7 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
           disabled={loadingExcel}
           sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: '#333' } }}
         >
-          {loadingExcel ? "Đang import..." : "Import từ Excel"}
+          {loadingExcel ? "Đang phân tích để tiến hành nhập hàng..." : "Nhập hàng từ file Excel"}
         </Button>
       
       </Box>

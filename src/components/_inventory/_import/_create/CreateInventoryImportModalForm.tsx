@@ -238,7 +238,6 @@ const CreateInventoryImportModalForm: React.FC<CreateInventoryImportModalFormPro
             costPrice={detail.costPrice}
             quantity={detail.quantity}
             productDisplay={productDisplay[idx]}
-            storeAllocations={detail.storeDetails}
             warehouses={availableWarehouses}
             distributionMode={mode}
             errorMessage={variantErrors[idx]}
