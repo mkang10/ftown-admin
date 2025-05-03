@@ -40,7 +40,7 @@ export interface StoreDetail {
     recordId: string;
     operation: string;
     changeDate: string;
-    changedBy: number;
+    changedByName: string;
     changeData: string;
     comment: string;
   }

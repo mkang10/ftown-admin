@@ -54,7 +54,7 @@ export interface DispatchResponseDto {
     recordId: string;
     operation: string;
     changeDate: string; // ISO datetime
-    changedBy: number;
+    changedByName: string;
     changeData: string;
     comment: string;
   }

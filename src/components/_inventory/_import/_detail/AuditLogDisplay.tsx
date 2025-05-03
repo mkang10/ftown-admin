@@ -38,7 +38,7 @@ export const AuditLogDisplay: React.FC<AuditLogDisplayProps> = ({ auditLogs }) =
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body1">
-                  <strong>Người Thay Đổi:</strong> {log.changedBy}
+                  <strong>Người Thay Đổi:</strong> {log.changedByName}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>

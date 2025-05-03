@@ -1,97 +1,110 @@
 export interface TransferResponseDto {
-    jsonTransfer: JsonTransfer;
-    jsonDispatch: JsonDispatch | null;
-    jsonImport: JsonImport;
-    auditLogs: AuditLog[];
-  }
-  
-  /**
-   * Thông tin chuyển hàng chính
-   */
-  export interface JsonTransfer {
-    transferOrderId: number;
-    importId: number;
-    dispatchId: number;
-    createdBy: number | null;
-    createdDate: string; // ISO datetime
-    status: string;
-    remarks: string | null;
-    originalTransferOrderId: number | null;
-    detailsTransferOrder: TransferOrderDetail[];
-  }
-  
-  /**
-   * Chi tiết từng mục trong đơn chuyển hàng
-   */
-  export interface TransferOrderDetail {
-    transferOrderDetailId: number;
-    transferOrderId: number;
-    sourceStoreId: number;
-    product: any | null;
-    quantity: number;
-    deliveredQuantity: number | null;
-  }
-  
-  /**
-   * Thông tin dispatch (có thể null nếu chưa dispatch)
-   */
-  export type JsonDispatch = any; // TODO: Định nghĩa chi tiết nếu cần
-  
-  /**
-   * Thông tin import hàng
-   */
-  export interface JsonImport {
-    importId: number;
-    createdBy: number | null;
-    createdDate: string; // ISO datetime
-    status: string;
-    referenceNumber: string;
-    totalCost: number;
-    approvedDate: string | null;
-    completedDate: string;
-    originalImportId: number | null;
-    details: ImportDetail[];
-  }
-  
-  /**
-   * Chi tiết từng mục import
-   */
-  export interface ImportDetail {
-    importDetailId: number;
-    importId: number;
-    productVariantName: string | null;
-    quantity: number;
-    costPrice: number | null;
-    priceProductVariant: number;
-    storeImportDetail: StoreImportDetail[];
-  }
-  
-  /**
-   * Chi tiết lưu kho khi import
-   */
-  export interface StoreImportDetail {
-    actualReceivedQuantity: number;
-    allocatedQuantity: number;
-    status: string;
-    comments: string;
-    staff: any | null;
-    importDetailId: number;
-    importStoreId: number;
-    warehouseName: string | null;
-    handleBy: any | null;
-  }
-  
-  /**
-   * Log thao tác audit
-   */
-  export interface AuditLog {
-    auditLogId: number;
-    tableName: string;
-    recordId: string;
-    operation: string;
-    changeDate: string; // ISO datetime
-    changedBy: number;
-    changeData: string;
-    comment: string;
-  }
-  
+  jsonTransfer: TransferDto;
+  jsonImport: ImportDto;
+  jsonDispatch: DispatchDto;
+  auditLogs: AuditLogDto[];
+}
+
+export interface TransferDto {
+  transferOrderId: number;
+  importId: number;
+  dispatchId: number;
+  createdBy: string;
+  createdDate: string; // ISO string
+  status: string;
+  remarks: string;
+  originalTransferOrderId: number | null;
+  detailsTransferOrder: TransferDetailDto[];
+}
+
+export interface TransferDetailDto {
+  transferOrderDetailId: number;
+  transferOrderId: number;
+  product: string;
+  color: string;
+  size: string;
+  quantity: number;
+  deliveredQuantity: number | null;
+}
+
+export interface ImportDto {
+  importId: number;
+  createdBy: string;
+  createdDate: string;
+  status: string;
+  referenceNumber: string;
+  totalCost: number;
+  approvedDate: string ;
+  completedDate: string | null;
+  originalImportId: number | null;
+  details: ImportDetailDto[];
+}
+
+export interface ImportDetailDto {
+  importDetailId: number;
+  importId: number;
+  product: string;
+  size: string;
+  color: string;
+  quantity: number;
+  costPrice: number;
+  priceProductVariant: number;
+  storeImportDetail: StoreImportDetailDto[];
+}
+
+export interface StoreImportDetailDto {
+  actualReceivedQuantity: number | null;
+  allocatedQuantity: number;
+  status: string;
+  comments: string;
+  staff: string;
+  importDetailId: number;
+  importStoreId: number;
+  warehouseName: string;
+  handleBy: string | null;
+}
+
+export interface DispatchDto {
+  dispatchId: number;
+  createdByUser: string;
+  createdDate: string;
+  status: string;
+  referenceNumber: string;
+  remarks: string;
+  originalId: number;
+  completedDate: string | null;
+  details: DispatchDetailDto[];
+}
+
+export interface DispatchDetailDto {
+  dispatchDetailId: number;
+  dispatchId: number;
+  variantName: string;
+  sizeName: string | null;
+  colorName: string | null;
+  quantity: number;
+  priceProductVariant: number;
+  storeExportDetail: StoreExportDetailDto[];
+}
+
+export interface StoreExportDetailDto {
+  warehouseName: string;
+  allocatedQuantity: number;
+  status: string;
+  comments: string;
+  staff: string;
+  dispatchDetailId: number;
+  handleBy: string;
+  dispatchStoreDetailId: number;
+  actualQuantity: number | null;
+}
+
+export interface AuditLogDto {
+  auditLogId: number;
+  tableName: string;
+  recordId: string;
+  operation: string;
+  changeDate: string;
+  changedByName: string;
+  comment: string;
+}

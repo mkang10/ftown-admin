@@ -161,7 +161,7 @@ const DispatchDetailPage: React.FC = () => {
         ) : auditLogs.map((log) => (
           <Card key={log.auditLogId} sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1 }}>
             <Typography variant="subtitle2" color="text.secondary">
-              {log.operation} bởi {log.changedBy} lúc {new Date(log.changeDate).toLocaleString()}
+              {log.operation} bởi {log.changedByName} lúc {new Date(log.changeDate).toLocaleString()}
             </Typography>
             {log.comment && <Typography variant="body2" mt={1}>{log.comment}</Typography>}
           </Card>
