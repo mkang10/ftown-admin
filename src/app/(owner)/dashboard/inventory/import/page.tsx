@@ -198,10 +198,10 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Phê duyệt nhập kho
+        Phiếu Nhập Kho
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        / Nhập kho / Phê duyệt
+        / Nhập kho / 
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>

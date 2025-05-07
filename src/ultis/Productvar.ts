@@ -18,29 +18,40 @@ export const getProductVariantDetail = async (
     }
   };
 
-  export const updateProductVariant = async (
-    payload: UpdateVariantRequest
-  ): Promise<UpdateVariantResponse> => {
-    const formData = new FormData();
-    formData.append("VariantId", payload.variantId.toString());
-    formData.append("Price", payload.price.toString());
-    formData.append("Status", payload.status);
-    if (payload.imageFile) {
-      formData.append("ImageFile", payload.imageFile, payload.imageFile.name);
-    }
-  
-    try {
-      const response = await adminClient.put<UpdateVariantResponse>(
-        "/products",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error updating variant:", error);
-      throw error;
-    }
-  };
+
+export const updateProductVariant = async (
+  payload: UpdateVariantRequest
+): Promise<UpdateVariantResponse> => {
+  const formData = new FormData();
+
+  // Append các trường bắt buộc
+  formData.append("VariantId", payload.variantId.toString());
+  formData.append("Price", payload.price.toString());
+  formData.append("Status", payload.status);
+  formData.append("MaxStocks", payload.maxStocks.toString());
+
+  // Append file nếu có
+  if (payload.imageFile) {
+    formData.append("ImageFile", payload.imageFile, payload.imageFile.name);
+  }
+
+  try {
+    const response = await adminClient.put<UpdateVariantResponse>(
+      "/products",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi cập nhật biến thể:", error);
+    throw error;
+  }
+};
+
   
 
   export const getColors = async (): Promise<ApiResponse<ColorOption[]>> => {

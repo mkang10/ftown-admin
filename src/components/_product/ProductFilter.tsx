@@ -49,7 +49,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onChange 
                     onChange={e => setDebouncedName(e.target.value)}
                   />
                 </Grid>
-                {['description', 'origin', 'model', 'occasion', 'style', 'material'].map(key => (
+                {['description', 'origin', 'model', 'occasion', 'style', 'material', 'skuFilter'].map(key => (
                   <Grid item xs={12} sm={6} md={4} key={key}>
                     <TextField
                       fullWidth

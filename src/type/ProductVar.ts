@@ -8,7 +8,8 @@ export interface ProductDetailData {
     sku: string;
     barcode?: string | null;
     weight?: number | null;
-    status?: string 
+    status?: string
+    maxStock : number;
   }
   
   export interface ProductDetailResponse {

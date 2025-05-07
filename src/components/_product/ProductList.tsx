@@ -12,7 +12,7 @@ interface ProductListProps {
 export const ProductList: React.FC<ProductListProps> = ({ products, cardStyle, onProductClick }) => (
   <Grid container spacing={2} justifyContent="center">
     {products.map(product => (
-      <Grid item xs={12} sm={6} md={4} lg={3} key={product.productId}>
+      <Grid item xs={12} marginRight={2} sm={6} md={4} lg={3} key={product.productId}>
         <ProductCard
           product={product}
           cardStyle={cardStyle}

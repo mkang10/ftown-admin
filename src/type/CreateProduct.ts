@@ -1,5 +1,6 @@
 export interface CreateProductRequest {
     name: string;
+    
     description: string;
     categoryId: number;
     origin: string;

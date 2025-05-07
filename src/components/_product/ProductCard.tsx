@@ -49,13 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, cardStyle, on
         </Typography>
 
         {/* Mô tả ngắn */}
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 1.5, maxHeight: 50, overflow: 'hidden' }}
-        >
-          {product.description}
-        </Typography>
+       
 
         <Box sx={{ mt: 'auto' }}>
           {/* Thông tin phụ */}

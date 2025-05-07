@@ -37,6 +37,7 @@ const AddVariantPage: React.FC = () => {
   const [weight, setWeight] = useState<number>(1);
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [maxStocks, setMaxStocks] = useState<number>(1);
 
   const [colors, setColors] = useState<ColorOption[]>([]);
   const [sizes, setSizes] = useState<SizeOption[]>([]);
@@ -92,6 +93,8 @@ const AddVariantPage: React.FC = () => {
     formData.append("SizeId", sizeId.toString());
     formData.append("ColorId", colorId.toString());
     formData.append("Weight", weight.toString());
+    formData.append("MaxStocks", maxStocks.toString());
+
     formData.append("ImageFile", imageFile, imageFile.name);
     try {
       const res = await createProductVariant(formData);
@@ -190,6 +193,17 @@ const AddVariantPage: React.FC = () => {
             helperText={weight <= 0 ? "Khối lượng phải lớn hơn 0" : ""}
             fullWidth
           />
+          <TextField
+  label="Tồn kho tối đa"
+  type="number"
+  inputProps={{ min: 1 }}
+  value={maxStocks}
+  onChange={(e) => setMaxStocks(Math.max(1, parseInt(e.target.value) || 0))} 
+  error={maxStocks <= 0}
+  helperText={maxStocks <= 0 ? "Tồn kho tối đa phải lớn hơn 0" : ""}
+  fullWidth
+/>
+
 
           <Stack spacing={1}>
             <Button variant="outlined" component="label">

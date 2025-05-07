@@ -3,6 +3,7 @@ export interface UpdateVariantRequest {
     price: number;
     status: string;
     imageFile?: File;
+    maxStocks : number;
   }
   
   // Response từ API cập nhật

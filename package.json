@@ -23,6 +23,7 @@
     "chart.js": "^4.4.7",
     "framer-motion": "^12.7.4",
     "headlessui": "^0.0.0",
+    "lodash": "^4.17.21",
     "next": "^14.2.7",
     "payos-checkout": "^1.0.9",
     "react": "^18",
@@ -34,9 +35,11 @@
     "react-material-ui-carousel": "^3.4.2",
     "react-toastify": "^11.0.3",
     "recharts": "^2.15.3",
-    "swiper": "^11.1.15"
+    "swiper": "^11.1.15",
+    "swr": "^2.3.3"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
