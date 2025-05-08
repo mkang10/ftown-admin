@@ -29,49 +29,15 @@ export default function DispatchTable({
   sortDirection,
 }: DispatchTableProps) {
   const getStatusStyle = (status: string) => {
-    const normalized = status.trim().toLowerCase();
-    switch (normalized) {
-      case "completed":
-      case "done":
-      case "hoàn thành":
-        return {
-          borderColor: "#4caf50",
-          color: "#4caf50",
-          backgroundColor: "#e8f5e9",
-        };
-      case "pending":
-      case "đang xử lý":
-        return {
-          borderColor: "#ff9800",
-          color: "#ff9800",
-          backgroundColor: "#fff8e1",
-        };
-      case "processing":
-        return {
-          borderColor: "#2196f3",
-          color: "#2196f3",
-          backgroundColor: "#e3f2fd",
-        };
-      case "approved":
-      case "đã duyệt":
-        return {
-          borderColor: "#3f51b5",
-          color: "#3f51b5",
-          backgroundColor: "#e8eaf6",
-        };
-      case "canceled":
-      case "đã huỷ":
-        return {
-          borderColor: "#f44336",
-          color: "#f44336",
-          backgroundColor: "#ffebee",
-        };
+    switch (status) {
+      case "Approved":
+        return { bgcolor: "#4caf50", color: "#fff" };
+      case "Processing":
+        return { bgcolor: "#ff9800", color: "#fff" };
+      case "Done":
+        return { bgcolor: "#2196f3", color: "#fff" };
       default:
-        return {
-          borderColor: "#9e9e9e",
-          color: "#424242",
-          backgroundColor: "#f5f5f5",
-        };
+        return { bgcolor: "grey.200", color: "grey.800" };
     }
   };
   

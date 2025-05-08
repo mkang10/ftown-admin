@@ -124,21 +124,26 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                     sx={{ bgcolor: "grey.100", color: "grey.700" }}
                   />
                 )}
-                {row.status === "Approved" && <Chip label="Approved" size="small" color="success" />}
-                {row.status === "Rejected" && <Chip label="Rejected" size="small" color="error" />}
-                {row.status === "Processing" && <Chip label="Processing" size="small" color="warning" />}
-                {row.status === "Done" && <Chip label="Done" size="small" color="info" />}
-                {row.status === "Partial Success" && (
-                  <Chip label="Partial Success" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
+                {row.status === "Approved" && (
+                  <Chip label="Approved" size="small" sx={{ bgcolor: "#4caf50", color: "#fff" }} />
+                )}
+                {row.status === "Rejected" && (
+                  <Chip label="Rejected" size="small" sx={{ bgcolor: "#f44336", color: "#fff" }} />
+                )}
+                {row.status === "Processing" && (
+                  <Chip label="Processing" size="small" sx={{ bgcolor: "#ff9800", color: "#fff" }} />
+                )}
+                {row.status === "Done" && (
+                  <Chip label="Done" size="small" sx={{ bgcolor: "#2196f3", color: "#fff" }} />
                 )}
                 {row.status === "Shortage" && (
-                  <Chip label="Shortage" size="small" sx={{ bgcolor: "red.200", color: "red.900" }} />
+                  <Chip label="Shortage" size="small" sx={{ bgcolor: "#9c27b0", color: "#fff" }} />
                 )}
                 {row.status === "Supplement Created" && (
-                  <Chip label="Supplement Created" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
+                  <Chip label="Supplement Created" size="small" sx={{ bgcolor: "#607d8b", color: "#fff" }} />
                 )}
                 {row.status === "Partially Approved" && (
-                  <Chip label="Partially Approved" size="small" sx={{ bgcolor: "yellow.300", color: "yellow.900" }} />
+                  <Chip label="Partially Approved" size="small" sx={{ bgcolor: "#ffc107", color: "#fff" }} />
                 )}
               </TableCell>
 

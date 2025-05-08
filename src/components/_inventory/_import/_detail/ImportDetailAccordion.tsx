@@ -7,6 +7,7 @@ import {
   Box,
   Typography,
   Alert,
+  Chip,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ImportDetailItem } from "@/type/importdetail";
@@ -15,6 +16,14 @@ interface ImportDetailAccordionProps {
   detail: ImportDetailItem;
 }
 
+const statusStyles: Record<string, { bgcolor: string; color: string }> = {
+  processing: { bgcolor: "#ff9800", color: "#fff" },
+  success: { bgcolor: "#4caf50", color: "#fff" },
+  shortage: { bgcolor: "#9c27b0", color: "#fff" },
+  handled: { bgcolor: "#607d8b", color: "#fff" },
+  rejected: { bgcolor: '#e57373', color: '#fff' },
+
+};
 export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ detail }) => {
   // Tính tổng số lượng thiếu nếu trạng thái là "Shortage"
   const missingTotal = detail.storeDetails.reduce((sum, store) => {
@@ -53,19 +62,23 @@ export const ImportDetailAccordion: React.FC<ImportDetailAccordionProps> = ({ de
           </Typography>
           {detail.storeDetails.map((store) => {
             const missing = store.allocatedQuantity - store.actualQuantity;
-            const isShortage = store.status.trim().toLowerCase() === "shortage";
+            const statusKey = store.status.trim().toLowerCase();
+
+            const style = statusStyles[statusKey] || { bgcolor: "grey.200", color: "grey.800" };
             return (
               <Box key={store.storeId} sx={{ ml: 2, mt: 0.5 }}>
-                <Typography variant="body2">
-                  <strong>Cửa Hàng ID:</strong> {store.storeId} -{" "}
-                  <strong>Tên:</strong> {store.storeName} -{" "}
-                  <strong>Phân Bổ:</strong> {store.allocatedQuantity} -{" "}
-                  <strong>Thực Tế:</strong> {store.actualQuantity} -{" "}
-                  <strong>Nhân Viên:</strong> {store.staffName} -{" "}
-                  <strong>Trạng Thái:</strong> {store.status.trim()}
+                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <strong>Cửa Hàng ID:</strong> {store.storeId} - <strong>Tên:</strong> {store.storeName} -{' '}
+                  <strong>Phân Bổ:</strong> {store.allocatedQuantity} - <strong>Thực Tế:</strong> {store.actualQuantity} -{' '}
+                  <strong>Nhân Viên:</strong> {store.staffName} - <strong>Trạng Thái:</strong>{' '}
+                  <Chip
+                    label={store.status}
+                    size="small"
+                    sx={{ fontWeight: 'bold', textTransform: 'capitalize', bgcolor: style.bgcolor, color: style.color }}
+                  />
                 </Typography>
 
-                {isShortage && missing > 0 && (
+                {statusKey === "shortage" && missing > 0 && (
                   <Alert severity="error" sx={{ mt: 1 }}>
                     Thiếu {missing} sản phẩm
                   </Alert>
