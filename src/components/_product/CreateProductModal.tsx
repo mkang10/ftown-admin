@@ -29,7 +29,7 @@ import { fetchCategories } from '@/ultis/categoryapi';
 import { Category } from '@/type/category';
 
 const STYLE_OPTIONS = ['Casual','Formal','Vintage','Streetwear','Bohemian','Sporty','Minimalist','Grunge'];
-const ORIGIN_OPTIONS = ['Vietnam','USA','Japan','China','Italy','France'];
+const ORIGIN_OPTIONS = ['Việt Nam','USA','Japan','China','Italy','France'];
 const OCCASION_OPTIONS = ['Daily','Party','Office','Wedding','Travel','Sports'];
 const MATERIAL_OPTIONS = ['Cotton','Leather','Polyester','Silk','Denim','Wool'];
 
@@ -118,7 +118,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({ open, on
         <Collapse in={sectionsOpen.meta} timeout="auto">
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}><TextField fullWidth label="Tên sản phẩm" value={form.name} onChange={e => handleChange('name', e.target.value)} /></Grid>
-            <Grid item xs={12} sm={6}><TextField fullWidth label="Model" value={form.model} onChange={e => handleChange('model', e.target.value)} /></Grid>
+            <Grid item xs={12} sm={6}><TextField fullWidth label="Mẫu" value={form.model} onChange={e => handleChange('model', e.target.value)} /></Grid>
             <Grid item xs={12}><TextField fullWidth multiline rows={3} label="Mô tả" value={form.description} onChange={e => handleChange('description', e.target.value)} /></Grid>
             <Grid item xs={6} sm={3}>{renderChipSelect('Xuất xứ', form.origin, ORIGIN_OPTIONS, 'origin')}</Grid>
             <Grid item xs={6} sm={3}>{renderChipSelect('Dịp', form.occasion, OCCASION_OPTIONS, 'occasion')}</Grid>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback ,useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Typography,
@@ -29,62 +29,48 @@ import FilterDialog, { FilterData } from "@/components/_inventory/_import/FIlter
 export default function InventoryApprovalPage() {
   const [data, setData] = useState<InventoryImportItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
- // state mới cho upload Excel
- const [loadingExcel, setLoadingExcel] = useState(false);
- const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loadingExcel, setLoadingExcel] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter state
   const [currentFilter, setCurrentFilter] = useState<FilterData>({});
-
-  // Phân trang
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-
-  // Sắp xếp
   const [sortField, setSortField] = useState<string>("importId");
-  // Mặc định giảm dần
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-
-  // Dialog filter
   const [filterDialogOpen, setFilterDialogOpen] = useState<boolean>(false);
-
-  // Dialog approve/reject
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [actionType, setActionType] = useState<"Approved" | "Rejected" | null>(null);
   const [selectedImportId, setSelectedImportId] = useState<number | null>(null);
   const [comment, setComment] = useState<string>("");
-
-  // Dialog create import
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
-// hàm gọi API import từ Excel
-const handleExcelImport = async (file: File) => {
-  setLoadingExcel(true);
-  try {
-    const result = await importInventoryFromExcel(file);
-    toast.success(result.message || "Import thành công");
-    fetchData();
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err.message || "Import thất bại");
-  } finally {
-    setLoadingExcel(false);
-  }
-};
 
-// khi bấm nút, mở file picker
-const onClickExcelButton = () => {
-  fileInputRef.current?.click();
-};
+  const templateUrl = "https://res.cloudinary.com/dvbbfcxdz/raw/upload/v1746725646/import_test_vez8ko.xlsx";
 
-// khi chọn file xong
-const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  handleExcelImport(file);
-  // reset lại để có thể chọn lại file cùng tên sau này
-  e.target.value = "";
-};
-  // Memoize fetchData để dùng cả trong useEffect và onSuccess của CreateInventoryImportModal
+  const handleExcelImport = async (file: File) => {
+    setLoadingExcel(true);
+    try {
+      const result = await importInventoryFromExcel(file);
+      toast.success(result.message || "Import thành công");
+      fetchData();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Import thất bại");
+    } finally {
+      setLoadingExcel(false);
+    }
+  };
+
+  const onClickExcelButton = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleExcelImport(file);
+    e.target.value = "";
+  };
+
   const fetchData = useCallback(async () => {
     try {
       const requestParams = {
@@ -115,7 +101,6 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     fetchData();
   }, [fetchData]);
 
-  // Sắp xếp
   const handleSortChange = (field: string) => {
     const isSame = sortField === field;
     const newDirection: "asc" | "desc" = isSame && sortDirection === "desc" ? "asc" : "desc";
@@ -124,18 +109,15 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPage(1);
   };
 
-  // Filter
   const handleFilterSubmit = (filters: FilterData) => {
     setCurrentFilter(filters);
     setPage(1);
   };
 
-  // Phân trang
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  // Mở modal approve/reject
   const handleAction = (
     action: "Approved" | "Rejected",
     importId: number,
@@ -150,10 +132,8 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const closeModal = () => setModalOpen(false);
 
-  // Xử lý submit approve/reject
   const handleActionSubmit = async () => {
     if (selectedImportId == null || !actionType) return;
-
     let changedBy = 0;
     try {
       const account = JSON.parse(localStorage.getItem("account") || "{}");
@@ -161,18 +141,15 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     } catch {
       console.warn("Không thể phân tích account từ localStorage");
     }
-
     const payload: ApproveRejectPayload = {
       changedBy,
       comments: comment || "Đã cập nhật",
     };
-
     try {
       const result =
         actionType === "Approved"
           ? await approveInventoryImport(selectedImportId, payload)
           : await rejectInventoryImport(selectedImportId, payload);
-
       if (result.status) {
         setData((prev) =>
           prev.map((item) =>
@@ -201,44 +178,51 @@ const onChangeExcelFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         Phiếu Nhập Kho
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        / Nhập kho / 
+        / Nhập kho /
       </Typography>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <IconButton
           onClick={() => setFilterDialogOpen(true)}
           title="Lọc"
-          sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: 'black', color: 'white' } }}
+          sx={{ backgroundColor: 'grey.200', color: 'grey.800', '&:hover': { backgroundColor: 'grey.300' } }}
         >
           <FilterListIcon />
         </IconButton>
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        <Button
-          variant="contained"
-          onClick={onClickExcelButton}
-          disabled={loadingExcel}
-          sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: '#333' } }}
-        >
-          {loadingExcel ? "Đang phân tích để tiến hành nhập hàng..." : "Nhập hàng từ file Excel"}
-        </Button>
-      
-      </Box>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="contained"
+            onClick={onClickExcelButton}
+            disabled={loadingExcel}
+            sx={{ backgroundColor: '#388e3c', color: 'white', '&:hover': { backgroundColor: '#2e7d32'} }}
+          >
+            {loadingExcel ? "Đang phân tích để tiến hành nhập hàng..." : "Nhập hàng từ file Excel"}
+          </Button>
+          <Button
+            component="a"
+            href={templateUrl}
+            download
+            variant="contained"
+            sx={{ backgroundColor: '#ffa726', color: 'white', '&:hover': { backgroundColor: '#fb8c00' } }}
+          >
+            Tải file Excel mẫu
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => setCreateModalOpen(true)}
+            sx={{ backgroundColor: '#1976d2', color: 'white', '&:hover': { backgroundColor: '#1565c0' } }}
+          >
+            Tạo phiếu nhập
+          </Button>
+        </Box>
 
-      {/* input file ẩn */}
-      <input
-        type="file"
-        accept=".xlsx, .xls"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={onChangeExcelFile}
-      />
-        <Button
-          variant="contained"
-          onClick={() => setCreateModalOpen(true)}
-          sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: '#333' } }}
-        >
-          Tạo phiếu nhập
-        </Button>
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={onChangeExcelFile}
+        />
       </Box>
 
       <InventoryTable

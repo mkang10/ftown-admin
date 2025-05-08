@@ -38,7 +38,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   return (
     <>
       {children}
-      <Toaster position="top-right" reverseOrder={false} />
     </>
   );
 };

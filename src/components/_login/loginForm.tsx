@@ -175,8 +175,9 @@ export default function LoginPage() {
         </div>
       </footer>
 
-      {/* Toaster for react-hot-toast */}
+      {/* Toaster for react-hot-toast */}    
       <Toaster />
-    </div>
+      </div>
+      
   );
 }

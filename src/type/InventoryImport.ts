@@ -8,7 +8,7 @@ export interface InventoryImportItem {
   createdBy: number;
   createdByName: string;
   createdDate: string;
-  status: "Pending" | "Approved" | "Rejected"|"Processing" |"Done"|"Partial Success"|"Supplement Created";
+  status: "Pending" | "Approved" | "Rejected"|"Processing" |"Done"|"Partial Success"|"Supplement Created"|"Shortage"|"Partially Approved";
   referenceNumber: string;
   totalCost: number;
   approvedDate: string | null;
@@ -30,7 +30,7 @@ export interface InventoryImportItem {
   createdByPhone?: string;
   createdByAddress?: string;
   createdDate: string;
-  status: "Pending" | "Approved" | "Rejected" | "Processing" |"Done"|"Partial Success"|"Supplement Created";
+  status: "Pending" | "Approved" | "Rejected"|"Processing" |"Done"|"Partial Success"|"Supplement Created"|"Shortage"|"Partially Approved";
   referenceNumber: string;
   totalCost: number;
   approvedDate: string | null;

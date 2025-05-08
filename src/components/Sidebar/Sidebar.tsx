@@ -173,7 +173,7 @@ const Sidebar: React.FC = () => {
       </List>
 
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 2,  }} />
 
       {/* Logout */}
       <Box
@@ -184,12 +184,14 @@ const Sidebar: React.FC = () => {
           cursor: "pointer",
           p: 1,
           mt: "auto", // ✅ đẩy logout xuống cuối
+          zIndex : 10000000
+          
         }}
       >
         <Box sx={{ mr: isOpen ? 1 : 0 }}>
           <FiLogOut />
         </Box>
-        {isOpen && <Typography variant="body2">Logout</Typography>}
+        {isOpen && <Typography  variant="body2">Logout </Typography>}
       </Box>
     </Box>
   );

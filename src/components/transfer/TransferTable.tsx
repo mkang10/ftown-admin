@@ -55,13 +55,7 @@ const TransferTable: React.FC<TransferTableProps> = ({
   const renderStatusChip = (status: string) => {
     switch (status) {
       case "Pending":
-        return (
-          <Chip
-            label="PENDING"
-            size="small"
-            sx={{ bgcolor: "grey.100", color: "grey.700" }}
-          />
-        );
+        return <Chip label="PENDING" size="small" sx={{ bgcolor: "grey.100", color: "grey.700" }} />;
       case "Approved":
         return <Chip label="APPROVED" size="small" color="success" />;
       case "Rejected":
@@ -71,26 +65,17 @@ const TransferTable: React.FC<TransferTableProps> = ({
       case "Done":
         return <Chip label="DONE" size="small" color="info" />;
       case "Partial Success":
-        return (
-          <Chip
-            label="PARTIAL SUCCESS"
-            size="small"
-            sx={{ bgcolor: "orange.200", color: "orange.900" }}
-          />
-        );
+        return <Chip label="PARTIAL SUCCESS" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />;
       case "Supplement Created":
-        return (
-          <Chip
-            label="SUPPLEMENT CREATED"
-            size="small"
-            sx={{ bgcolor: "orange.200", color: "orange.900" }}
-          />
-        );
+        return <Chip label="SUPPLEMENT CREATED" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />;
+      case "Partially Approved":
+        return <Chip label="PARTIALLY APPROVED" size="small" sx={{ bgcolor: "orange.200", color: "yellow.900" }} />;
       default:
         return <Chip label={status.toUpperCase()} size="small" />;
     }
   };
-
+  
+  
   return (
     <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
       <Table>

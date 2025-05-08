@@ -9,6 +9,8 @@ export interface Warehouse {
     phone: string;
     warehouseType: string;
     shopManagerId: number;
+    safetyStock : number;
+    urgentSafetyStock : number;
   }
   
   export interface WarehouseStock {

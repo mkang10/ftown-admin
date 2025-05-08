@@ -21,7 +21,6 @@ const WarehouseCard: React.FC<Props> = ({ warehouse, onClick }) => (
       '&:hover': { transform: 'scale(1.03)' }
     }}
   >
-    {/* Ảnh kho nếu có đường dẫn */}
     {warehouse.imagePath && (
       <CardMedia
         component="img"
@@ -32,24 +31,36 @@ const WarehouseCard: React.FC<Props> = ({ warehouse, onClick }) => (
     )}
 
     <CardContent sx={{ flexGrow: 1 }}>
-      {/* Tên kho */}
       <Typography variant="h6">
         {warehouse.warehouseName}
       </Typography>
 
-      {/* Mô tả kho */}
       <Typography variant="body2" color="text.secondary">
         {warehouse.warehouseDescription}
       </Typography>
 
-      {/* Vị trí kho */}
       <Typography variant="caption" display="block" mt={1}>
         Vị trí: {warehouse.location}
       </Typography>
 
-      {/* Ngày tạo */}
       <Typography variant="caption" display="block">
         Ngày tạo: {new Date(warehouse.createdDate).toLocaleDateString()}
+      </Typography>
+
+      <Typography variant="body2" mt={1}>
+        Loại kho: {warehouse.warehouseType}
+      </Typography>
+
+      <Typography variant="body2">
+        Số điện thoại: {warehouse.phone}
+      </Typography>
+
+      <Typography variant="body1" fontWeight="bold" color="primary" mt={2}>
+        Số lượng hàng hóa an toàn: {warehouse.safetyStock}
+      </Typography>
+
+      <Typography variant="body1" fontWeight="bold" color="error" mt={1}>
+        Số lượng hàng hóa khẩn cấp: {warehouse.urgentSafetyStock}
       </Typography>
     </CardContent>
   </Card>

@@ -70,7 +70,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 direction={sortField === "CreatedByName" ? sortDirection : "desc"}
                 onClick={createSortHandler("CreatedByName")}
               >
-                Người nhập
+                Người tạo phiếu
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
@@ -131,10 +131,17 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 {row.status === "Partial Success" && (
                   <Chip label="Partial Success" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
+                {row.status === "Shortage" && (
+                  <Chip label="Shortage" size="small" sx={{ bgcolor: "red.200", color: "red.900" }} />
+                )}
                 {row.status === "Supplement Created" && (
                   <Chip label="Supplement Created" size="small" sx={{ bgcolor: "orange.200", color: "orange.900" }} />
                 )}
+                {row.status === "Partially Approved" && (
+                  <Chip label="Partially Approved" size="small" sx={{ bgcolor: "yellow.300", color: "yellow.900" }} />
+                )}
               </TableCell>
+
               <TableCell align="center">{row.createdDate}</TableCell>
               <TableCell align="center">
                 {row.status === "Pending" ? (
